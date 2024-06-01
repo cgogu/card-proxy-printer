@@ -1,4 +1,13 @@
-from .meta import CardMeta, CanvasMeta
-from .components import Canvas
+from .models import CardModel, CanvasModel
+from .canvas import Canvas
+from .proxies import FABProxifier, MTGProxifier
+from .utils import replace_alpha_with_solid
 
-__all__ = "CardMeta, A4PaperMeta, A4Paper"
+__all__ = (
+    "CardModel",
+    "CanvasModel",
+    "Canvas",
+    "FABProxifier",
+    "MTGProxifier",
+    "replace_alpha_with_solid",
+)
