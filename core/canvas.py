@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 
 import cv2
 import numpy as np
@@ -11,9 +12,14 @@ class Canvas:
     """
 
     def __init__(self, dpi: int = 300) -> None:
-        self.__card_data_model = CardModel(identifier="", index=0, dpi=dpi)
+        self.__card_data_model = CardModel(identifier="", dpi=dpi)
         self.data_model = CanvasModel(dpi=dpi)
-        self.num_cards_per_page, self.x_step, self.y_step = self._generate_layout_data()
+        (
+            self.num_cards_per_page_width,
+            self.num_cards_per_page_height,
+            self.x_step,
+            self.y_step,
+        ) = self._generate_layout_data()
 
     def _generate_layout_data(self) -> tuple:
         """
@@ -26,18 +32,18 @@ class Canvas:
         num_cards_per_page_height = (
             self.data_model.height_px // self.__card_data_model.height_px
         )
-        num_cards_per_page = min(num_cards_per_page_width, num_cards_per_page_height)
 
         return (
-            num_cards_per_page,
+            num_cards_per_page_width,
+            num_cards_per_page_height,
             (
                 self.data_model.width_px
-                - self.__card_data_model.width_px * num_cards_per_page
+                - self.__card_data_model.width_px * num_cards_per_page_width
             )
             // 2,
             (
                 self.data_model.height_px
-                - self.__card_data_model.height_px * num_cards_per_page
+                - self.__card_data_model.height_px * num_cards_per_page_height
             )
             // 2,
         )
@@ -47,12 +53,14 @@ class Canvas:
         Draw cards layout on the canvas.
         """
 
-        for card_idx in range(self.num_cards_per_page + 1):
-            # X-axis
+        # X-axis
+        for card_idx in range(self.num_cards_per_page_width + 1):
             self.page[
                 :, self.x_step + (self.__card_data_model.width_px * card_idx), :
             ] = 0
-            # Y-axis
+
+        # Y-axis
+        for card_idx in range(self.num_cards_per_page_height + 1):
             self.page[
                 self.y_step + (self.__card_data_model.height_px * card_idx), :, :
             ] = 0
@@ -113,6 +121,28 @@ class Canvas:
     def save_page(
         self, output_dir: str, output_filename: str = "proxifier.png"
     ) -> None:
+        """
+        Save canvas page on disk as an image.
+        """
+
         if not (output_dir := Path(output_dir)).exists():
             output_dir.mkdir(parents=True, exist_ok=True)
         cv2.imwrite((output_dir / output_filename).as_posix(), self.page)
+
+    def fill_page(self, cards: Iterable[dict]) -> None:
+        """
+        Fill canvas page with cards.
+        """
+
+        for card_index, card in enumerate(cards):
+            y_index = card_index % self.num_cards_per_page_height
+            x_index = card_index // self.num_cards_per_page_width
+            self.page[
+                self.y_step
+                + (card["height"] * y_index) : self.y_step
+                + (card["height"] * (y_index + 1)),
+                self.x_step
+                + (card["width"] * x_index) : self.x_step
+                + (card["width"] * (x_index + 1)),
+                :,
+            ] = card["image"]

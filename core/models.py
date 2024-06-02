@@ -9,7 +9,6 @@ class CardModel(BaseModel):
     """
 
     identifier: str = Field(default=..., exclude=True)
-    index: int = Field(default=..., ge=0)
     name: str = Field(default="")
     dpi: int = Field(default=300, ge=300, exclude=True)
     width_inch: float = Field(default=2.5, exclude=True)

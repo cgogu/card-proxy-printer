@@ -1,10 +1,13 @@
-Deck build - via https://fabdb.net :
-
-Michael Feng - Rhinar Reckless Rampage Deck - Battle Hardened Pittsburgh 10.11.23 (Rhinar, Reckless Rampage)
-
-Weapons: Mandible Claw
-Equipment: Crown of Providence, Fyendal's Spring Tunic, Gambler's Gloves, Nullrune Gloves, Scabskin Leathers, Scowling Flesh Bag, Skull Crushers, Skullhorn
-
+[1] Rhinar, Reckless Rampage
+[1] Mandible Claw
+[1] Crown of Providence
+[1] Fyendal's Spring Tunic
+[1] Gambler's Gloves
+[1] Nullrune Gloves
+[1] Scabskin Leathers
+[1] Scowling Flesh Bag
+[1] Skull Crushers
+[1] Skullhorn
 [3] Alpha Rampage (Red)
 [1] Amnesia (Red)
 [3] Command and Conquer (Red)
@@ -29,5 +32,3 @@ Equipment: Crown of Providence, Fyendal's Spring Tunic, Gambler's Gloves, Nullru
 [2] Reckless Swing (Blue)
 [3] Warmonger's Diplomacy (Blue)
 [3] Wrecker Romp (Blue)
-
-See the full deck at: https://fabdb.net/decks/rExLlKPK

@@ -35,6 +35,16 @@ class CardGameProxifier(ABC):
 
 
 class MTGProxifier(CardGameProxifier):
+
+    # MTG
+    # set_alias = "woe"
+    # collector_number = 3
+    # card_response = requests.get(f"https://api.scryfall.com/cards/{set_alias}/{collector_number}")
+    # if card_response is not None:
+    #     card_data = card_response.json()
+    # card_name = card_data["name"].lower().replace(" ", "-")
+    # image_response = requests.get(card_data["image_uris"]["png"])
+
     def __init__(
         self, name: str = "MTG", endpoint: str = "https://api.scryfall.com/cards"
     ) -> None:
@@ -45,11 +55,6 @@ class MTGProxifier(CardGameProxifier):
 
     def generate_card(self):
         pass
-
-    def _content_to_image(self, content: bytes) -> np.ndarray:
-        card_image = cv2.imdecode(np.frombuffer(content, np.uint8), cv2.IMREAD_COLOR)
-        card_image = cv2.cvtColor(card_image, cv2.COLOR_BGR2RGB)
-        return card_image
 
 
 class FABProxifier(CardGameProxifier):
