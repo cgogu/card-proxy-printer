@@ -2,16 +2,32 @@ from abc import ABC, abstractmethod
 
 import cv2
 import time
-import requests
+import torch
 import numpy as np
+from requests import Session
 from .models import CardModel
-from .utils import replace_alpha_with_solid
+from .utils import replace_alpha_with_solid, apply_superes_and_denoiser_pipeline
+from helper_repos.sr.torchsr.torchsr.models import ninasr_b2
+from helper_repos.denoise.scunet.models.network_scunet import SCUNet
 
 
 class CardGameProxifier(ABC):
-    def __init__(self, name: str, endpoint: str) -> None:
+
+    def __init__(
+        self,
+        name: str,
+        endpoint: str,
+        sr_weights_path: str | None,
+        denoise_weights_path: str | None,
+    ) -> None:
         self.name = name
         self.endpoint = endpoint
+        self.sr_weights_path = sr_weights_path
+        self.denoise_weights_path = denoise_weights_path
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.session = Session()
+        self.session.headers.update({"Accept": "application/json"})
+        self._generate_nn_models()
 
     @abstractmethod
     def get_card(self):
@@ -21,16 +37,43 @@ class CardGameProxifier(ABC):
     def generate_card(self):
         raise NotImplementedError
 
-    def process_card_image_bytes(
+    def _generate_nn_models(self) -> None:
+        if self.sr_weights_path is not None:
+            self.sr_model = ninasr_b2(scale=4, pretrained=False)
+            self.sr_model.load_state_dict(
+                torch.load(
+                    self.sr_weights_path,
+                    map_location=self.device,
+                ),
+                strict=True,
+            )
+            self.sr_model.eval()
+            for _, v in self.sr_model.named_parameters():
+                v.requires_grad = False
+
+        if self.denoise_weights_path is not None:
+            self.denoise_model = SCUNet(in_nc=3, config=[4, 4, 4, 4, 4, 4, 4], dim=64)
+            self.denoise_model.load_state_dict(
+                torch.load(
+                    self.denoise_weights_path,
+                    map_location=self.device,
+                ),
+                strict=True,
+            )
+            self.denoise_model.eval()
+            for _, v in self.denoise_model.named_parameters():
+                v.requires_grad = False
+
+    def process_card_image(
         self, card_image_bytes: bytes, width: int, height: int
     ) -> np.ndarray:
         card_image = cv2.imdecode(np.frombuffer(card_image_bytes, np.uint8), -1)
         card_image = replace_alpha_with_solid(card_image)
-        card_image = cv2.resize(
-            card_image,
-            (width, height),
-            interpolation=cv2.INTER_CUBIC,
+        # cv2.imwrite("./debug_0.png", card_image)
+        card_image = apply_superes_and_denoiser_pipeline(
+            card_image, self.sr_model, self.denoise_model, width, height, self.device
         )
+        # cv2.imwrite("./debug_1.png", card_image)
         return card_image
 
 
@@ -46,9 +89,13 @@ class MTGProxifier(CardGameProxifier):
     # image_response = requests.get(card_data["image_uris"]["png"])
 
     def __init__(
-        self, name: str = "MTG", endpoint: str = "https://api.scryfall.com/cards"
+        self,
+        name: str = "MTG",
+        endpoint: str = "https://api.scryfall.com/cards",
+        sr_weights_path: str | None = None,
+        denoise_weights_path: str | None = None,
     ) -> None:
-        super().__init__(name, endpoint)
+        super().__init__(name, endpoint, sr_weights_path, denoise_weights_path)
 
     def get_card(self, card_set_alias: str, card_set_collector_number: int):
         pass
@@ -58,20 +105,23 @@ class MTGProxifier(CardGameProxifier):
 
 
 class FABProxifier(CardGameProxifier):
+
     def __init__(
-        self, name: str = "FAB", endpoint: str = "https://api.fabdb.net/cards"
+        self,
+        name: str = "FAB",
+        endpoint: str = "https://api.fabdb.net/cards",
+        sr_weights_path: str | None = None,
+        denoise_weights_path: str | None = None,
     ) -> None:
         # https://fabdb2.imgix.net/cards/printings/ARC042.png - future endpoint
         # where the "ARC042" represents the card set alias and collector number
-        self.headers = {"Accept": "application/json"}
-        super().__init__(name, endpoint)
+        super().__init__(name, endpoint, sr_weights_path, denoise_weights_path)
 
     def get_card(self, card_name: str) -> tuple | None:
         time.sleep(0.1)  # required
         if not (
-            card_data_response := requests.get(
+            card_data_response := self.session.get(
                 url=f"{self.endpoint}/{card_name}",
-                headers=self.headers,
                 verify=True,
             )
         ).ok:
@@ -80,9 +130,8 @@ class FABProxifier(CardGameProxifier):
         card_data = card_data_response.json()
         time.sleep(0.1)  # required
         if not (
-            card_image_response := requests.get(
+            card_image_response := self.session.get(
                 url=card_data.get("image", "").split("?")[0],
-                headers=self.headers,
                 verify=True,
             )
         ).ok:
@@ -100,7 +149,7 @@ class FABProxifier(CardGameProxifier):
             name=card_meta.get("name", ""),
             index=card_index,
         )
-        card_image = self.process_card_image_bytes(
+        card_image = self.process_card_image(
             card_image_bytes, card_model.width_px, card_model.height_px
         )
         card = card_model.model_dump(by_alias=True)

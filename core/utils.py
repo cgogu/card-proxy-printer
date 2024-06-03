@@ -1,5 +1,37 @@
+import argparse
+
+import torch
 import cv2
 import numpy as np
+from torchvision.transforms.functional import to_pil_image, to_tensor
+from helper_repos.denoise.scunet.utils.utils_image import uint2tensor4, tensor2uint
+
+
+def get_cfg() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser.add_argument(
+        "--card-game-alias",
+        type=str,
+        required=True,
+        help="The card game alias (MTG or FAB)",
+    )
+    parser.add_argument(
+        "--path-to-decklist",
+        type=str,
+        required=True,
+        help="Path to decklist to be proxied",
+    )
+    parser.add_argument(
+        "--path-to-sr-weights",
+        type=str,
+        help="Path to super resolution model weights",
+    )
+    parser.add_argument(
+        "--path-to-denoise-weights",
+        type=str,
+        help="Path to denoision model weights",
+    )
+    return parser.parse_args()
 
 
 def replace_alpha_with_solid(
@@ -33,6 +65,33 @@ def replace_alpha_with_solid(
         image = cv2.merge(chs if is_rgb else chs[::-1]).astype(np.uint8)
 
     return image
+
+
+def apply_superes_and_denoiser_pipeline(
+    card_image: np.ndarray,
+    sr_model: torch.nn.Module,
+    denoise_model: torch.nn.Module,
+    width: int,
+    height: int,
+    device: torch.device,
+) -> np.ndarray:
+    # SR
+    low_res_tensor = to_tensor(card_image).unsqueeze(0).to(device)
+    high_res_tensor = sr_model(low_res_tensor)
+    high_res_image = np.asarray(
+        to_pil_image(high_res_tensor.squeeze(0).clamp(0, 1)), dtype=np.uint8
+    )
+
+    # Resize to standard 2.5 x 3.5
+    high_res_image = cv2.resize(
+        high_res_image, (width, height), interpolation=cv2.INTER_AREA
+    )
+
+    # Denoise
+    noisy_tensor = uint2tensor4(high_res_image).to(device)
+    clean_tensor = denoise_model(noisy_tensor)
+    return tensor2uint(clean_tensor)
+
 
 # import re
 

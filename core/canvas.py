@@ -14,39 +14,27 @@ class Canvas:
     def __init__(self, dpi: int = 300) -> None:
         self.__card_data_model = CardModel(identifier="", dpi=dpi)
         self.data_model = CanvasModel(dpi=dpi)
-        (
-            self.num_cards_per_page_width,
-            self.num_cards_per_page_height,
-            self.x_step,
-            self.y_step,
-        ) = self._generate_layout_data()
+        self._generate_layout_data()
 
-    def _generate_layout_data(self) -> tuple:
+    def _generate_layout_data(self) -> None:
         """
         Generate cards layout for the canvas.
         """
 
-        num_cards_per_page_width = (
+        self.num_cards_per_page_width = (
             self.data_model.width_px // self.__card_data_model.width_px
         )
-        num_cards_per_page_height = (
+        self.num_cards_per_page_height = (
             self.data_model.height_px // self.__card_data_model.height_px
         )
-
-        return (
-            num_cards_per_page_width,
-            num_cards_per_page_height,
-            (
-                self.data_model.width_px
-                - self.__card_data_model.width_px * num_cards_per_page_width
-            )
-            // 2,
-            (
-                self.data_model.height_px
-                - self.__card_data_model.height_px * num_cards_per_page_height
-            )
-            // 2,
-        )
+        self.x_step = (
+            self.data_model.width_px
+            - self.__card_data_model.width_px * self.num_cards_per_page_width
+        ) // 2
+        self.y_step = (
+            self.data_model.height_px
+            - self.__card_data_model.height_px * self.num_cards_per_page_height
+        ) // 2
 
     def _draw_layout_helpers(self, num_page: int | None, num_pages: int | None) -> None:
         """
