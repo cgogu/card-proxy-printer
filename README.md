@@ -1,6 +1,6 @@
 ## Card Proxy Printer
 
-Card Proxy Printer is a Python application designed to create high-quality proxies of card images for printing on standard A4 paper. Whether you’re a Magic: The Gathering (MTG) player or a Flesh and Blood (FAB) enthusiast, this tool streamlines the process of generating printable proxies. Here are the key features:
+Card Proxy Printer is a Python application designed to create high-quality proxies of card images for printing on standard A4 paper. Whether you’re a Magic: The Gathering (MTG) player or a Flesh and Blood (FAB) enthusiast, this tool streamlines the process of generating printable proxies.
 
 ## Features
 
