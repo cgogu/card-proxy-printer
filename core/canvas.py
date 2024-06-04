@@ -12,7 +12,7 @@ class Canvas:
     """
 
     def __init__(self, dpi: int = 300) -> None:
-        self.__card_data_model = CardModel(identifier="", dpi=dpi)
+        self.__card_data_model = CardModel(dpi=dpi)
         self.data_model = CanvasModel(dpi=dpi)
         self._generate_layout_data()
 
@@ -22,18 +22,18 @@ class Canvas:
         """
 
         self.num_cards_per_page_width = (
-            self.data_model.width_px // self.__card_data_model.width_px
+            self.data_model.width_pixels // self.__card_data_model.width_pixels
         )
         self.num_cards_per_page_height = (
-            self.data_model.height_px // self.__card_data_model.height_px
+            self.data_model.height_pixels // self.__card_data_model.height_pixels
         )
         self.x_step = (
-            self.data_model.width_px
-            - self.__card_data_model.width_px * self.num_cards_per_page_width
+            self.data_model.width_pixels
+            - self.__card_data_model.width_pixels * self.num_cards_per_page_width
         ) // 2
         self.y_step = (
-            self.data_model.height_px
-            - self.__card_data_model.height_px * self.num_cards_per_page_height
+            self.data_model.height_pixels
+            - self.__card_data_model.height_pixels * self.num_cards_per_page_height
         ) // 2
 
     def _draw_layout_helpers(self, num_page: int | None, num_pages: int | None) -> None:
@@ -44,13 +44,13 @@ class Canvas:
         # X-axis
         for card_idx in range(self.num_cards_per_page_width + 1):
             self.page[
-                :, self.x_step + (self.__card_data_model.width_px * card_idx), :
+                :, self.x_step + (self.__card_data_model.width_pixels * card_idx), :
             ] = 0
 
         # Y-axis
         for card_idx in range(self.num_cards_per_page_height + 1):
             self.page[
-                self.y_step + (self.__card_data_model.height_px * card_idx), :, :
+                self.y_step + (self.__card_data_model.height_pixels * card_idx), :, :
             ] = 0
 
         if num_page is not None and num_pages is not None:
@@ -65,8 +65,8 @@ class Canvas:
                 img=self.page,
                 text=page_text,
                 org=[
-                    self.data_model.width_px // 2 - fw // 2,
-                    self.data_model.height_px - self.y_step // 2 + fh // 2,
+                    self.data_model.width_pixels // 2 - fw // 2,
+                    self.data_model.height_pixels - self.y_step // 2 + fh // 2,
                 ],
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=1,
@@ -80,7 +80,7 @@ class Canvas:
         """
 
         self.page = np.full(
-            (self.data_model.height_px, self.data_model.width_px, 3),
+            (self.data_model.height_pixels, self.data_model.width_pixels, 3),
             fill_value=255,
             dtype=np.uint8,
         )

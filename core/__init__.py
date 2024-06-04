@@ -2,9 +2,12 @@ from .models import CardModel, CanvasModel
 from .canvas import Canvas
 from .proxies import FABProxifier, MTGProxifier
 from .utils import (
+    CardProxyError,
     replace_alpha_with_solid,
     get_cfg,
     apply_superes_and_denoiser_pipeline,
+    create_fab_cards_collection,
+    encode_name,
 )
 
 __all__ = (
@@ -13,7 +16,10 @@ __all__ = (
     "Canvas",
     "FABProxifier",
     "MTGProxifier",
+    "CardProxyError",
     "replace_alpha_with_solid",
     "get_cfg",
     "apply_superes_and_denoiser_pipeline",
+    "create_fab_cards_collection",
+    "encode_name",
 )
