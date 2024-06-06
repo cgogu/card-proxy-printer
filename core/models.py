@@ -21,8 +21,8 @@ class CardModel(BaseModel):
     dpi: int = Field(default=300, ge=300, exclude=True)
     width_inch: float = Field(default=2.5, exclude=True)
     height_inch: float = Field(default=3.5, exclude=True)
-    width_pixels: int | None = Field(default=None, alias="width")
-    height_pixels: int | None = Field(default=None, alias="height")
+    width_pixels: int | None = Field(default=None)
+    height_pixels: int | None = Field(default=None)
 
     def model_post_init(self, __context: Any) -> None:
         """

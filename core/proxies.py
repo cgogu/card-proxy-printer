@@ -1,17 +1,25 @@
+import json
+import os
 from abc import ABC, abstractmethod
 
 import cv2
 import time
 import torch
 import numpy as np
+from simdjson import Parser
 from requests import Session
 from .models import CardModel
 from .utils import (
     replace_alpha_with_solid,
     apply_superes_and_denoiser_pipeline,
     create_fab_cards_collection,
+    get_json_file,
 )
-from helper_repos.sr.torchsr.torchsr.models import ninasr_b2
+from helper_repos.sr.torchsr.torchsr.models import (
+    ninasr_b0,
+    ninasr_b1,
+    ninasr_b2,
+)  # speed - quality tradeoff
 from helper_repos.denoise.scunet.models.network_scunet import SCUNet
 
 
@@ -125,57 +133,71 @@ class FABProxifier(CardGameProxifier):
             create_fab_cards_collection(
                 collection_input_path, collection_output_path, name
             )
+            self.cards_collection_parser = Parser().load(
+                get_json_file(os.path.join(collection_output_path, name))
+            )
 
-    def _get_card_api(self):
-        pass
+    def _get_card_by_api(self, card_name: str) -> bytes | None:
+        # Card name and pitch value delimiter: "_"
+        card_name = card_name.replace("_", "-")
 
-    def _get_card_collection(self):
-        pass
-
-    def get_card(self, card_name: str) -> tuple | None:
-        if self.use_api:
-            time.sleep(0.1)  # required
-            if not (
-                card_data_response := self.session.get(
-                    url=f"{self.endpoint}/{card_name}",
-                    verify=True,
-                )
-            ).ok:
-                return
-
-            card_data = card_data_response.json()
-            time.sleep(0.1)  # required
-            if not (
-                card_image_response := self.session.get(
-                    url=card_data.get("image", "").split("?")[0],
-                    verify=True,
-                )
-            ).ok:
-                return
-
-            return card_data, card_image_response.content
-        else:
-            pass
-
-    def _generate_card_api(self):
-        pass
-
-    def _generate_card_collection(self):
-        pass
-
-    def generate_card(self, card_name: str) -> dict:
-        if (card_data := self.get_card(card_name)) is None:
+        time.sleep(0.1)  # required
+        if not (
+            card_data_response := self.session.get(
+                url=f"{self.endpoint}/{card_name}",
+                verify=True,
+            )
+        ).ok:
             return
 
-        card_meta, card_image_bytes = card_data
-        card_model = CardModel(
-            identifier=card_meta.get("identifier"),
-            name=card_meta.get("name"),
-        )
-        card_image = self.process_card_image(
-            card_image_bytes, card_model.width_pixels, card_model.height_pixels
-        )
-        card = card_model.model_dump(by_alias=True)
-        card["image"] = card_image
+        card_data = card_data_response.json()
+        time.sleep(0.1)  # required
+        if not (
+            card_image_response := self.session.get(
+                url=card_data.get("image", "").split("?")[0],
+                verify=True,
+            )
+        ).ok:
+            return
 
-        return card
+        return card_image_response.content
+
+    def _get_card_by_collection(self, card_name: str) -> bytes | None:
+        # Card name and pitch value delimiter: "_"
+        if "_" in card_name:
+            card_name, card_pitch = card_name.split("_")
+        else:
+            card_pitch = "unique"
+
+        time.sleep(0.1)  # required
+        if not (
+            card_image_response := self.session.get(
+                url=self.cards_collection_parser.at_pointer(
+                    f"/cards/{card_name}/{card_pitch}/image_url"
+                ).split("?")[0],
+                verify=True,
+            )
+        ).ok:
+            return
+
+        return card_image_response.content
+
+    def get_card(self, card_name: str) -> list | None:
+        return (
+            self._get_card_by_api(card_name)
+            if self.use_api
+            else self._get_card_by_collection(card_name)
+        )
+
+    def generate_card(
+        self,
+        card_name: str,
+        on_canvas_card_width_pixels: int,
+        on_canvas_card_height_pixels: int,
+    ) -> dict:
+        if (card_image_bytes := self.get_card(card_name)) is None:
+            return
+
+        return self.process_card_image(
+            card_image_bytes, on_canvas_card_width_pixels, on_canvas_card_height_pixels
+        )

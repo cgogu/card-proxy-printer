@@ -2,12 +2,13 @@ import argparse
 import re
 import os
 import json
-from glob import glob
+from glob import glob, iglob
 from datetime import datetime
 
 import torch
 import cv2
 import numpy as np
+from tqdm import tqdm
 from git import Repo
 from simdjson import Parser
 from torchvision.transforms.functional import to_pil_image, to_tensor
@@ -58,6 +59,16 @@ def get_cfg() -> argparse.Namespace:
         help="Path to save local card collection after parsing",
     )
     return parser.parse_args()
+
+
+def get_json_file(input_path: str) -> str | None:
+    if not os.path.exists(input_path):
+        return
+
+    if len((json_file := glob(os.path.join(input_path, "*.json")))) == 0:
+        return
+
+    return json_file[0]
 
 
 def replace_alpha_with_solid(
@@ -119,7 +130,7 @@ def apply_superes_and_denoiser_pipeline(
     return tensor2uint(clean_tensor)
 
 
-def sync_with_remote(repo_path: str, verbose: bool = True) -> str:
+def sync_with_remote(repo_path: str, verbose: bool = True) -> tuple:
     repo = Repo(repo_path)
     assert not repo.bare  # ensure the repo is not bare
 
@@ -141,28 +152,30 @@ def sync_with_remote(repo_path: str, verbose: bool = True) -> str:
         [*repo.iter_commits(f"{local_commit.hexsha}..{remote_commit.hexsha}")]
     )
 
-    print(f"Local branch is {num_commits_behind} commits behind remote.")
-    print("Skipping code actualization.")
+    print(
+        f"[CARD-PROXY-PRINTER] Local branch is {num_commits_behind} commits behind remote branch."
+    )
 
     # if the local branch is behind, pull the changes
+    pull_response = "no"
     if num_commits_behind > 0:
         while True:
-            user_response = input(
-                "Might want to fetch all latest changes. Enter [yes]/no to continue: "
+            pull_response = input(
+                "[CARD-PROXY-PRINTER] Might want to fetch all latest changes. Enter yes/no to continue: "
             )
-            if user_response == "":
-                user_response = "yes"
-            if user_response == "yes" or user_response == "no":
+            if pull_response == "yes" or pull_response == "no":
                 break
 
-        if user_response == "yes":
-            print("Pulling changes...")
+        if pull_response == "yes":
+            print("[CARD-PROXY-PRINTER] Pulling changes...")
             origin.pull(verbose=verbose)
-            print("Local branch code is now up to date.")
+            print("[CARD-PROXY-PRINTER] Local branch code is now up to date.")
         else:
-            print("Skipping code actualization.")
+            print("[CARD-PROXY-PRINTER] Skipping code actualization.")
+    else:
+        print("[CARD-PROXY-PRINTER] Skipping code actualization.")
 
-    return repo.commit(active_branch.name)
+    return repo.commit(active_branch.name), pull_response == "yes"
 
 
 def encode_name(name: str) -> str:
@@ -188,161 +201,202 @@ def create_fab_cards_collection(
     if not os.path.exists(path_to_data_root):
         raise CardProxyError(f"{path_to_data_root} does not exist.")
 
-    repo_path = glob(os.path.join(path_to_data_root, name, "*"))[0]
-    root_path = glob(
-        os.path.join(
-            repo_path,
-            "**",
-            "english",
-        ),
-        recursive=True,
-    )[0]
-
     # Sync collection with latest changes
-    repo_commit = sync_with_remote(repo_path=repo_path)
+    repo_path = next(iglob(os.path.join(path_to_data_root, name, "*")))
+    repo_commit, is_new_collection_available = sync_with_remote(repo_path=repo_path)
 
-    # FAB collection parsing, cleaning, and saving
-    pitches = {
-        "": "colorless",  # empty pitch naming convention (e.g. heroes, arms, equipment, etc.)
-        "1": "red",
-        "2": "yellow",
-        "3": "blue",
-    }
-
-    fab_cards_collection = {}
-    uuids_to_name = {}
-
-    if not os.path.exists(
-        (
-            card_flattened_input_json_path := os.path.join(
-                root_path, "card-flattened.json"
-            )
+    root_path = next(
+        iglob(
+            os.path.join(
+                repo_path,
+                "**",
+                "english",
+            ),
+            recursive=True,
         )
-    ):
-        raise CardProxyError(f"card-flattened.json cannot be found at {root_path}")
+    )
+    output_path = os.path.join(path_to_data_output, name)
+    past_cards_collection_path = get_json_file(output_path)
 
-    for card_data in Parser().load(card_flattened_input_json_path):
-        card = CardModel(
-            uuid=card_data.get("unique_id"),
-            printing_uuid=card_data.get("printing_unique_id"),
-            identifier=card_data.get("id"),
-            name=encode_name(card_data.get("name")),
-            foiling=card_data.get("foiling"),
-            pitch=pitches[card_data.get("pitch")],
-            is_token="Token" in card_data.get("types", []),
-            image_url=card_data.get("image_url"),
-        )
-
-        if "metadata" not in fab_cards_collection:
-            fab_cards_collection["metadata"] = {
-                "datetime": datetime.now().strftime("%d/%m/%Y-%H:%M:%S"),
-                "hash": str(repo_commit),
-                "dpi": card.dpi,
-                "width_inch": card.width_inch,
-                "height_inch": card.height_inch,
-                "width_pixels": card.width_pixels,
-                "height_pixels": card.height_pixels,
-            }
-
-        # Skip wrong format
-        if card.image_url is not None and "/ENG" in card.image_url:
-            continue
-
-        # Keep only standard foiling cards and keep track of all uuids
-        if fab_cards_collection.get(card.name, {}).get(card.pitch, None) is not None:
-            if card.foiling != "S":
-                _track_card_uuids(uuids_to_name, card)
-                continue
-
-        # Keep only standard image url, skip modified request parameters, and keep track of all uuids
-        # If only modified url exists, keep it
-        if (
-            current_image_url := fab_cards_collection.get(card.name, {})
-            .get(card.pitch, {})
-            .get("image_url", None)
-        ) is not None:
-            # Current image url exists and is as expected
-            if not ".width" in current_image_url:
-                _track_card_uuids(uuids_to_name, card)
-                continue
-
-        # Get the back ids only for front cards that are double sided
-        backside_cards = []
-        if (
-            inpt_double_sided_cards := card_data.get("double_sided_card_info", None)
-        ) is not None:
-            for ds_card in inpt_double_sided_cards:
-                if ds_card["is_front"] and ds_card["is_DFC"]:
-                    backside_cards.append(ds_card["other_face_unique_id"])
-
-        if len(backside_cards) > 0:
-            card.backside = backside_cards
-
-        # Get the reference ids cards that generate other cards (like tokens)
-        token_cards = []
-        if (input_token_cards := card_data.get("referenced_cards", None)) is not None:
-            for reference_card in input_token_cards:
-                token_cards.append(reference_card)
-
-        if len(token_cards) > 0:
-            card.tokens = token_cards
-
-        # Add same name, but different pitch card
-        if "cards" not in fab_cards_collection:
-            fab_cards_collection["cards"] = {}
-        if card.name in fab_cards_collection:
-            fab_cards_collection["cards"][card.name][card.pitch] = card.model_dump(
-                exclude=["name", "width_pixels", "height_pixels"]
+    if is_new_collection_available and past_cards_collection_path is not None:
+        while True:
+            overwrite_response = input(
+                "[CARD-PROXY-PRINTER] Overwrite cards collection? Enter yes/no to continue: "
             )
-        else:
-            fab_cards_collection["cards"][card.name] = {
-                card.pitch: card.model_dump(
-                    exclude=["name", "width_pixels", "height_pixels"]
+            if overwrite_response == "yes" or overwrite_response == "no":
+                break
+
+    if (
+        is_new_collection_available and overwrite_response == "yes"
+    ) or past_cards_collection_path is None:
+        # FAB collection parsing, cleaning, and saving
+        pitches = {
+            "": "colorless",  # empty pitch naming convention (e.g. heroes, arms, equipment, etc.)
+            "1": "red",
+            "2": "yellow",
+            "3": "blue",
+        }
+
+        fab_cards_collection = {}
+        uuids_to_name = {}
+
+        if not os.path.exists(
+            (
+                card_flattened_input_json_path := os.path.join(
+                    root_path, "card-flattened.json"
                 )
-            }
+            )
+        ):
+            raise CardProxyError(f"card-flattened.json cannot be found at {root_path}")
 
-        _track_card_uuids(uuids_to_name, card)
-
-    # Change backsides and tokens uuids to names
-    for cards in fab_cards_collection["cards"].values():
-        for card in cards.values():
-            # Backsides
-            if card["backside"] is not None:
-                card["backside"] = [
-                    *{
-                        uuids_to_name[backside_uuid]
-                        for backside_uuid in card["backside"]
-                    }
-                ]
-
-            # Tokens
-            if card["tokens"] is not None:
-                token_names = (
-                    uuids_to_name[token_uuid] for token_uuid in card["tokens"]
+        cards_parser = Parser().load(card_flattened_input_json_path)
+        with tqdm(
+            cards_parser,
+            total=len(cards_parser),
+            ascii=True,
+            desc="[CARD-PROXY-PRINTER] Creating new cards collection",
+        ) as pbar:
+            for card_data in pbar:
+                card = CardModel(
+                    uuid=card_data.get("unique_id"),
+                    printing_uuid=card_data.get("printing_unique_id"),
+                    identifier=card_data.get("id"),
+                    name=encode_name(card_data.get("name")),
+                    foiling=card_data.get("foiling"),
+                    pitch=pitches[card_data.get("pitch")],
+                    is_token="Token" in card_data.get("types", []),
+                    image_url=card_data.get("image_url"),
                 )
-                # Tokens (or referenced cards) are always colorless
-                tokens = [
-                    *{
-                        token_name
-                        for token_name in token_names
-                        if fab_cards_collection["cards"]
-                        .get(token_name, {})
-                        .get("colorless", {})
-                        .get("is_token")
+
+                if "metadata" not in fab_cards_collection:
+                    fab_cards_collection["metadata"] = {
+                        "author": "cgogu",
+                        "datetime": datetime.now().strftime("%d/%m/%Y-%H:%M:%S"),
+                        "hash": str(repo_commit),
+                        "dpi": card.dpi,
+                        "width_inch": card.width_inch,
+                        "height_inch": card.height_inch,
+                        "width_pixels": card.width_pixels,
+                        "height_pixels": card.height_pixels,
                     }
-                ]
-                card["tokens"] = tokens if len(tokens) > 0 else None
 
-    # Save collection snapshot on disk
-    if not os.path.exists((output_path := os.path.join(path_to_data_output, name))):
-        os.makedirs(output_path, exist_ok=True)
+                # Skip wrong format
+                if card.image_url is not None and "/ENG" in card.image_url:
+                    continue
 
-    with open(
-        os.path.join(output_path, f"{name}-cards-collection-commit-{repo_commit}.json"),
-        mode="w",
-        encoding="utf-8",
-    ) as cards_collection_file:
-        json.dump(fab_cards_collection, cards_collection_file, indent=4)
+                # Keep only standard foiling cards and keep track of all uuids
+                if (
+                    fab_cards_collection.get(card.name, {}).get(card.pitch, None)
+                    is not None
+                ):
+                    if card.foiling != "S":
+                        _track_card_uuids(uuids_to_name, card)
+                        continue
+
+                # Keep only standard image url, skip modified request parameters, and keep track of all uuids
+                # If only modified url exists, keep it
+                if (
+                    current_image_url := fab_cards_collection.get(card.name, {})
+                    .get(card.pitch, {})
+                    .get("image_url", None)
+                ) is not None:
+                    # Current image url exists and is as expected
+                    if not ".width" in current_image_url:
+                        _track_card_uuids(uuids_to_name, card)
+                        continue
+
+                # Get the back ids only for front cards that are double sided
+                backside_cards = []
+                if (
+                    inpt_double_sided_cards := card_data.get(
+                        "double_sided_card_info", None
+                    )
+                ) is not None:
+                    for ds_card in inpt_double_sided_cards:
+                        if ds_card["is_front"] and ds_card["is_DFC"]:
+                            backside_cards.append(ds_card["other_face_unique_id"])
+
+                if len(backside_cards) > 0:
+                    card.backside = backside_cards
+
+                # Get the reference ids cards that generate other cards (like tokens)
+                token_cards = []
+                if (
+                    input_token_cards := card_data.get("referenced_cards", None)
+                ) is not None:
+                    for reference_card in input_token_cards:
+                        token_cards.append(reference_card)
+
+                if len(token_cards) > 0:
+                    card.tokens = token_cards
+
+                # Add same name, but different pitch card
+                if "cards" not in fab_cards_collection:
+                    fab_cards_collection["cards"] = {}
+                if card.name in fab_cards_collection["cards"]:
+                    fab_cards_collection["cards"][card.name][card.pitch] = (
+                        card.model_dump(
+                            exclude=["name", "width_pixels", "height_pixels"]
+                        )
+                    )
+                else:
+                    fab_cards_collection["cards"][card.name] = {
+                        card.pitch: card.model_dump(
+                            exclude=["name", "width_pixels", "height_pixels"]
+                        )
+                    }
+
+                _track_card_uuids(uuids_to_name, card)
+
+            # Change backsides and tokens uuids to names
+            for cards in fab_cards_collection["cards"].values():
+                for card in cards.values():
+                    # Backsides
+                    if card["backside"] is not None:
+                        card["backside"] = [
+                            *{
+                                uuids_to_name[backside_uuid]
+                                for backside_uuid in card["backside"]
+                            }
+                        ]
+
+                    # Tokens
+                    if card["tokens"] is not None:
+                        token_names = (
+                            uuids_to_name[token_uuid] for token_uuid in card["tokens"]
+                        )
+                        # Tokens (or referenced cards) are always colorless
+                        tokens = [
+                            *{
+                                token_name
+                                for token_name in token_names
+                                if fab_cards_collection["cards"]
+                                .get(token_name, {})
+                                .get("colorless", {})
+                                .get("is_token")
+                            }
+                        ]
+                        card["tokens"] = tokens if len(tokens) > 0 else None
+
+            # Save collection snapshot on disk
+            if not os.path.exists(output_path):
+                os.makedirs(output_path, exist_ok=True)
+
+            if past_cards_collection_path is not None and overwrite_response == "yes":
+                os.remove(past_cards_collection_path)
+
+            with open(
+                os.path.join(
+                    output_path, f"{name}-cards-collection-commit-{repo_commit}.json"
+                ),
+                mode="w",
+                encoding="utf-8",
+            ) as cards_collection_file:
+                json.dump(fab_cards_collection, cards_collection_file, indent=4)
+
+            print("[CARD-PROXY-PRINTER] Saved and using new cards collection.")
+    else:
+        print("[CARD-PROXY-PRINTER] Using current cards collection.")
 
 
 # entry = "1 Sea Gate Restoration // Sea Gate, Reborn (ZNR) 333 *F*"

@@ -16,6 +16,14 @@ class Canvas:
         self.data_model = CanvasModel(dpi=dpi)
         self._generate_layout_data()
 
+    @property
+    def on_canvas_card_width_pixels(self):
+        return self.__card_data_model.width_pixels
+
+    @property
+    def on_canvas_card_height_pixels(self):
+        return self.__card_data_model.height_pixels
+
     def _generate_layout_data(self) -> None:
         """
         Generate cards layout for the canvas.
@@ -122,15 +130,17 @@ class Canvas:
         Fill canvas page with cards.
         """
 
+        print(f"[CARD-PROXY-PRINTER] Fill canvas with cards.")
+
         for card_index, card in enumerate(cards):
             y_index = card_index % self.num_cards_per_page_height
             x_index = card_index // self.num_cards_per_page_width
             self.page[
                 self.y_step
-                + (card["height"] * y_index) : self.y_step
-                + (card["height"] * (y_index + 1)),
+                + (self.__card_data_model.height_pixels * y_index) : self.y_step
+                + (self.__card_data_model.height_pixels * (y_index + 1)),
                 self.x_step
-                + (card["width"] * x_index) : self.x_step
-                + (card["width"] * (x_index + 1)),
+                + (self.__card_data_model.width_pixels * x_index) : self.x_step
+                + (self.__card_data_model.width_pixels * (x_index + 1)),
                 :,
-            ] = card["image"]
+            ] = card

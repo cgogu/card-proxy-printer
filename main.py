@@ -26,7 +26,11 @@ def main():
                 f"{config.card_game_alias} not available. Only 'mtg' or 'fab' supported."
             )
 
-    card = proxifier.generate_card("herald-of-tenacity-red")
+    card = proxifier.generate_card(
+        "herald-of-tenacity_red",
+        canvas.on_canvas_card_width_pixels,
+        canvas.on_canvas_card_height_pixels,
+    )
 
     lc = [card for _ in range(30)]
 
