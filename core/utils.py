@@ -2,6 +2,7 @@ import argparse
 import re
 import os
 import json
+from string import punctuation
 from glob import glob, iglob
 from datetime import datetime
 
@@ -15,6 +16,13 @@ from torchvision.transforms.functional import to_pil_image, to_tensor
 from helper_repos.denoise.scunet.utils.utils_image import uint2tensor4, tensor2uint
 from .models import CardModel
 
+PITCHES = {
+    "": "colorless",  # empty pitch naming convention (e.g. heroes, arms, equipment, etc.)
+    "1": "red",
+    "2": "yellow",
+    "3": "blue",
+}
+
 
 class CardProxyError(Exception):
     """
@@ -25,6 +33,10 @@ class CardProxyError(Exception):
 
 
 def get_cfg() -> argparse.Namespace:
+    """
+    Arguments parser.
+    """
+
     parser = argparse.ArgumentParser(description="Process some integers.")
     parser.add_argument(
         "--card-game-alias",
@@ -37,6 +49,12 @@ def get_cfg() -> argparse.Namespace:
         type=str,
         required=True,
         help="Path to decklist to be proxied",
+    )
+    parser.add_argument(
+        "--path-to-output",
+        type=str,
+        required=True,
+        help="Path to output to save the proxied decklist",
     )
     parser.add_argument(
         "--path-to-sr-weights",
@@ -61,14 +79,18 @@ def get_cfg() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def get_json_file(input_path: str) -> str | None:
+def get_ext_file(input_path: str, ext: str = "json") -> str | None:
+    """
+    Get json file from path.
+    """
+
     if not os.path.exists(input_path):
         return
 
-    if len((json_file := glob(os.path.join(input_path, "*.json")))) == 0:
+    if len((ext_file := glob(os.path.join(input_path, f"*.{ext}")))) == 0:
         return
 
-    return json_file[0]
+    return ext_file[0]
 
 
 def replace_alpha_with_solid(
@@ -76,6 +98,10 @@ def replace_alpha_with_solid(
     solid_color: list = [0, 0, 0],
     is_rgb: bool = False,
 ) -> np.ndarray:
+    """
+    Replace the alpha channel from an image with a solid color.
+    """
+
     # Check if the image has an alpha channel
     if image.shape[2] == 4:
         # Split the image into channels
@@ -112,6 +138,10 @@ def apply_superes_and_denoiser_pipeline(
     height: int,
     device: torch.device,
 ) -> np.ndarray:
+    """
+    Run super-resolution and denoising nn models over the input image.
+    """
+
     # SR
     low_res_tensor = to_tensor(card_image).unsqueeze(0).to(device)
     high_res_tensor = sr_model(low_res_tensor)
@@ -127,10 +157,15 @@ def apply_superes_and_denoiser_pipeline(
     # Denoise
     noisy_tensor = uint2tensor4(high_res_image).to(device)
     clean_tensor = denoise_model(noisy_tensor)
+
     return tensor2uint(clean_tensor)
 
 
 def sync_with_remote(repo_path: str, verbose: bool = True) -> tuple:
+    """
+    Synchronize local branch with remote.
+    """
+
     repo = Repo(repo_path)
     assert not repo.bare  # ensure the repo is not bare
 
@@ -178,9 +213,54 @@ def sync_with_remote(repo_path: str, verbose: bool = True) -> tuple:
     return repo.commit(active_branch.name), pull_response == "yes"
 
 
-def encode_name(name: str) -> str:
-    clean = re.sub(r"\W+\s*", " ", name, flags=re.VERBOSE)
-    return clean.lower().replace(" ", "-")
+def encode_name(name: str, separator: str = "-") -> str:
+    """
+    Encode name by eliminating all punctuation and replacing white spaces with separator.
+    ex: Test's name.. -> tests name -> tests-name
+    """
+
+    # Need to add "…" to punctuation
+    return (
+        "".join(ch for ch in name if ch not in punctuation + "\u2026")
+        .lower()
+        .replace(" ", separator)
+    )
+
+
+def split_name_and_pitch(name_and_pitch: str, separator: str = "-") -> tuple:
+    """
+    Split name and pitch. Add pitch when non existent and encode the name.
+    """
+
+    encoded = encode_name(name_and_pitch)
+    encoded_splits = encoded.split(separator)
+
+    if encoded_splits[-1] in ["red", "yellow", "blue"]:
+        return f"{separator}".join(encoded_splits[:-1]), encoded_splits[-1]
+    return encoded, PITCHES[""]
+
+
+def parse_decklist(path_to_decklist: str) -> list:
+    """
+    Parse and process decklist to respect the encoded format (see above).
+    """
+
+    if not os.path.exists(path_to_decklist):
+        raise CardProxyError(f"{path_to_decklist} does not exist.")
+
+    if (decklist_file_path := get_ext_file(path_to_decklist, ext="txt")) is None:
+        raise CardProxyError(f"No text decklist can be found at {path_to_decklist}.")
+
+    decklist = []
+    with open(decklist_file_path, mode="r", encoding="utf-8") as decklist_file:
+        while line := decklist_file.readline():
+            card_count, card_name = re.match(
+                r"\[(\d+)\]\s(.*)\s*", line.rstrip(), flags=re.VERBOSE
+            ).groups()
+            card_name, card_pitch = split_name_and_pitch(card_name)
+            decklist.append((int(card_count), card_name, card_pitch))
+
+    return decklist
 
 
 def create_fab_cards_collection(
@@ -188,13 +268,21 @@ def create_fab_cards_collection(
     path_to_data_output: str,
     name: str = "fab",
 ) -> None:
+    """
+    Create FAB cards collection snapshot based on the-fab-cube:
+    https://github.com/the-fab-cube/flesh-and-blood-cards.
+    """
 
-    def _track_card_uuids(uuids_to_name: dict, card: CardModel) -> None:
+    def __track_card_uuids(uuids_to_name: dict, card: CardModel) -> None:
+        """
+        Keep track of all unique identifiers.
+        """
+
         uuids_to_name[card.uuid] = (
-            f"{card.name}-{card.pitch}" if card.pitch != "colorless" else card.name
+            f"{card.name}-{card.pitch}" if card.pitch != PITCHES[""] else card.name
         )
         uuids_to_name[card.printing_uuid] = (
-            f"{card.name}-{card.pitch}" if card.pitch != "colorless" else card.name
+            f"{card.name}-{card.pitch}" if card.pitch != PITCHES[""] else card.name
         )
 
     # Set repo and root of data collection
@@ -216,8 +304,9 @@ def create_fab_cards_collection(
         )
     )
     output_path = os.path.join(path_to_data_output, name)
-    past_cards_collection_path = get_json_file(output_path)
+    past_cards_collection_path = get_ext_file(output_path)
 
+    is_new_collection_available = True
     if is_new_collection_available and past_cards_collection_path is not None:
         while True:
             overwrite_response = input(
@@ -230,12 +319,6 @@ def create_fab_cards_collection(
         is_new_collection_available and overwrite_response == "yes"
     ) or past_cards_collection_path is None:
         # FAB collection parsing, cleaning, and saving
-        pitches = {
-            "": "colorless",  # empty pitch naming convention (e.g. heroes, arms, equipment, etc.)
-            "1": "red",
-            "2": "yellow",
-            "3": "blue",
-        }
 
         fab_cards_collection = {}
         uuids_to_name = {}
@@ -263,7 +346,7 @@ def create_fab_cards_collection(
                     identifier=card_data.get("id"),
                     name=encode_name(card_data.get("name")),
                     foiling=card_data.get("foiling"),
-                    pitch=pitches[card_data.get("pitch")],
+                    pitch=PITCHES[card_data.get("pitch")],
                     is_token="Token" in card_data.get("types", []),
                     image_url=card_data.get("image_url"),
                 )
@@ -281,7 +364,12 @@ def create_fab_cards_collection(
                     }
 
                 # Skip wrong format
-                if card.image_url is not None and "/ENG" in card.image_url:
+                if card.image_url is not None and (
+                    "/ENG/" in card.image_url
+                    or "/promos/" in card.image_url
+                    or "_V2" in card.image_url  # alternate artwork (full art)
+                ):
+                    __track_card_uuids(uuids_to_name, card)
                     continue
 
                 # Keep only standard foiling cards and keep track of all uuids
@@ -290,7 +378,7 @@ def create_fab_cards_collection(
                     is not None
                 ):
                     if card.foiling != "S":
-                        _track_card_uuids(uuids_to_name, card)
+                        __track_card_uuids(uuids_to_name, card)
                         continue
 
                 # Keep only standard image url, skip modified request parameters, and keep track of all uuids
@@ -302,7 +390,7 @@ def create_fab_cards_collection(
                 ) is not None:
                     # Current image url exists and is as expected
                     if not ".width" in current_image_url:
-                        _track_card_uuids(uuids_to_name, card)
+                        __track_card_uuids(uuids_to_name, card)
                         continue
 
                 # Get the back ids only for front cards that are double sided
@@ -346,7 +434,7 @@ def create_fab_cards_collection(
                         )
                     }
 
-                _track_card_uuids(uuids_to_name, card)
+                __track_card_uuids(uuids_to_name, card)
 
             # Change backsides and tokens uuids to names
             for cards in fab_cards_collection["cards"].values():
@@ -372,7 +460,7 @@ def create_fab_cards_collection(
                                 for token_name in token_names
                                 if fab_cards_collection["cards"]
                                 .get(token_name, {})
-                                .get("colorless", {})
+                                .get(PITCHES[""], {})
                                 .get("is_token")
                             }
                         ]

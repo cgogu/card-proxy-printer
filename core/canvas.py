@@ -1,5 +1,4 @@
-from pathlib import Path
-from typing import Iterable
+import os
 
 import cv2
 import numpy as np
@@ -14,6 +13,8 @@ class Canvas:
     def __init__(self, dpi: int = 300) -> None:
         self.__card_data_model = CardModel(dpi=dpi)
         self.data_model = CanvasModel(dpi=dpi)
+        self.num_page = None
+        self.num_pages = None
         self._generate_layout_data()
 
     @property
@@ -110,27 +111,32 @@ class Canvas:
         Create a new canvas page.
         """
 
+        self.num_page = num_page
+        self.num_pages = num_pages
         self.clear_page() if hasattr(self, "page") else self.blank_page()
+
         if draw_layout:
             self._draw_layout_helpers(num_page, num_pages)
 
-    def save_page(
-        self, output_dir: str, output_filename: str = "proxifier.png"
-    ) -> None:
+    def save_page(self, output_dir: str) -> None:
         """
         Save canvas page on disk as an image.
         """
 
-        if not (output_dir := Path(output_dir)).exists():
-            output_dir.mkdir(parents=True, exist_ok=True)
-        cv2.imwrite((output_dir / output_filename).as_posix(), self.page)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+        cv2.imwrite(
+            os.path.join(output_dir, f"{str(self.num_page).zfill(2)}.png"), self.page
+        )
 
-    def fill_page(self, cards: Iterable[dict]) -> None:
+    def fill_page(self, cards: tuple) -> None:
         """
         Fill canvas page with cards.
         """
 
-        print(f"[CARD-PROXY-PRINTER] Fill canvas with cards.")
+        print(
+            f"[CARD-PROXY-PRINTER] Fill page {self.num_page}/{self.num_pages} with cards."
+        )
 
         for card_index, card in enumerate(cards):
             y_index = card_index % self.num_cards_per_page_height
