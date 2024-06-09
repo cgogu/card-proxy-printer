@@ -1,9 +1,10 @@
 import os
-from glob import iglob
+from glob import glob
 from datetime import datetime
 
 import cv2
 import numpy as np
+from natsort import natsorted
 from img2pdf import convert as pdf_convert
 from .models import CanvasModel, CardModel
 
@@ -166,6 +167,7 @@ class Canvas:
                 f"deck_{datetime.now().strftime("%d%m%Y%H%M%S")}.pdf",
             ), "wb"
         ) as pdf_file:
-            pdf_file.write(pdf_convert(iglob(os.path.join(tmpdir, f"*.{self.image_ext}"), recursive=True)))
+            pages = natsorted(glob(os.path.join(tmpdir, f"*.{self.image_ext}"), recursive=True))
+            pdf_file.write(pdf_convert(pages))
 
         print(f"[CARD-PROXY-PRINTER] Done proxying decklist with output at: {output_pdf_path}.")
