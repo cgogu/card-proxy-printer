@@ -1,7 +1,10 @@
 import os
+from glob import iglob
+from datetime import datetime
 
 import cv2
 import numpy as np
+from img2pdf import convert as pdf_convert
 from .models import CanvasModel, CardModel
 
 
@@ -15,6 +18,7 @@ class Canvas:
         self.data_model = CanvasModel(dpi=dpi)
         self.num_page = None
         self.num_pages = None
+        self.image_ext = "png"
         self._generate_layout_data()
 
     @property
@@ -126,7 +130,7 @@ class Canvas:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir, exist_ok=True)
         cv2.imwrite(
-            os.path.join(output_dir, f"{str(self.num_page).zfill(2)}.png"), self.page
+            os.path.join(output_dir, f"{str(self.num_page).zfill(2)}.{self.image_ext}"), self.page
         )
 
     def fill_page(self, cards: tuple) -> None:
@@ -139,8 +143,8 @@ class Canvas:
         )
 
         for card_index, card in enumerate(cards):
-            y_index = card_index % self.num_cards_per_page_height
-            x_index = card_index // self.num_cards_per_page_width
+            x_index = card_index % self.num_cards_per_page_width
+            y_index = card_index // self.num_cards_per_page_height
             self.page[
                 self.y_step
                 + (self.__card_data_model.height_pixels * y_index) : self.y_step
@@ -150,3 +154,18 @@ class Canvas:
                 + (self.__card_data_model.width_pixels * (x_index + 1)),
                 :,
             ] = card
+
+    def save_pdf(self, path_to_output: str, tmpdir: str) -> None:
+        """
+        Save canvas pages as a PDF file.
+        """
+        
+        with open(
+            output_pdf_path := os.path.join(
+                path_to_output,
+                f"deck_{datetime.now().strftime("%d%m%Y%H%M%S")}.pdf",
+            ), "wb"
+        ) as pdf_file:
+            pdf_file.write(pdf_convert(iglob(os.path.join(tmpdir, f"*.{self.image_ext}"), recursive=True)))
+
+        print(f"[CARD-PROXY-PRINTER] Done proxying decklist with output at: {output_pdf_path}.")

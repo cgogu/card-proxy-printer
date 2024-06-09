@@ -1,5 +1,7 @@
+import os
 from math import ceil
 from itertools import batched
+from tempfile import TemporaryDirectory
 
 from tqdm import tqdm
 from core import Canvas, MTGProxifier, FABProxifier, CardProxyError, parse_decklist
@@ -64,13 +66,20 @@ class Runner:
             )
         )
 
-        for batch_index, batch_cards in enumerate(
-            batched(
-                all_images,
-                self.canvas.num_cards_per_page_width
-                * self.canvas.num_cards_per_page_height,
-            )
-        ):
-            self.canvas.new_page(batch_index + 1, num_pages)
-            self.canvas.fill_page(batch_cards)
-            self.canvas.save_page(self.config.path_to_output)
+        if not os.path.exists(self.config.path_to_output):
+            os.makedirs(self.config.path_to_output, exist_ok=True)
+
+        with TemporaryDirectory(
+            prefix="tmp_", dir=self.config.path_to_output
+        ) as tmpdir:
+            for batch_index, batch_cards in enumerate(
+                batched(
+                    all_images,
+                    self.canvas.num_cards_per_page_width
+                    * self.canvas.num_cards_per_page_height,
+                )
+            ):
+                self.canvas.new_page(batch_index + 1, num_pages)
+                self.canvas.fill_page(batch_cards)
+                self.canvas.save_page(tmpdir)
+            self.canvas.save_pdf(self.config.path_to_output, tmpdir)

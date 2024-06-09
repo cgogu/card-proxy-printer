@@ -306,7 +306,6 @@ def create_fab_cards_collection(
     output_path = os.path.join(path_to_data_output, name)
     past_cards_collection_path = get_ext_file(output_path)
 
-    is_new_collection_available = True
     if is_new_collection_available and past_cards_collection_path is not None:
         while True:
             overwrite_response = input(
