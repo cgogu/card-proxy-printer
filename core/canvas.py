@@ -156,7 +156,7 @@ class Canvas:
                 :,
             ] = card
 
-    def save_pdf(self, path_to_output: str, tmpdir: str) -> None:
+    def save_pdf(self, tmpdir: str, path_to_output: str, card_game_alias: str) -> None:
         """
         Save canvas pages as a PDF file.
         """
@@ -164,7 +164,7 @@ class Canvas:
         with open(
             output_pdf_path := os.path.join(
                 path_to_output,
-                f"deck_{datetime.now().strftime("%d%m%Y%H%M%S")}.pdf",
+                f"{card_game_alias}-deck-snapshot-{datetime.now().strftime("%d%m%Y%H%M%S")}.pdf",
             ), "wb"
         ) as pdf_file:
             pages = natsorted(glob(os.path.join(tmpdir, f"*.{self.image_ext}"), recursive=True))

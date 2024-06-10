@@ -130,6 +130,17 @@ def replace_alpha_with_solid(
     return image
 
 
+def convert_16bit_to_8bit(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from 16-bit to 8-bit.
+    """
+
+    if image.dtype == np.uint8:
+        return image
+
+    return (image / 256).astype(np.uint8)
+
+
 def apply_superes_and_denoiser_pipeline(
     card_image: np.ndarray,
     sr_model: torch.nn.Module,
@@ -255,7 +266,7 @@ def parse_decklist(path_to_decklist: str) -> list:
     with open(decklist_file_path, mode="r", encoding="utf-8") as decklist_file:
         while line := decklist_file.readline():
             card_count, card_name = re.match(
-                r"\[(\d+)\]\s(.*)\s*", line.rstrip(), flags=re.VERBOSE
+                r"(\d+)\s(.*)\s*", line.rstrip(), flags=re.VERBOSE
             ).groups()
             card_name, card_pitch = split_name_and_pitch(card_name)
             decklist.append((int(card_count), card_name, card_pitch))
@@ -366,6 +377,7 @@ def create_fab_cards_collection(
                 if card.image_url is not None and (
                     "/ENG/" in card.image_url
                     or "/promos/" in card.image_url
+                    or "/EN_OUT_" in card.image_url
                     or "_V2" in card.image_url  # alternate artwork (full art)
                 ):
                     __track_card_uuids(uuids_to_name, card)

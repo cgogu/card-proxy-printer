@@ -1,4 +1,3 @@
-import json
 import os
 from abc import ABC, abstractmethod
 
@@ -8,9 +7,9 @@ import torch
 import numpy as np
 from simdjson import Parser
 from requests import Session
-from .models import CardModel
 from .utils import (
     replace_alpha_with_solid,
+    convert_16bit_to_8bit,
     apply_superes_and_denoiser_pipeline,
     create_fab_cards_collection,
     get_ext_file,
@@ -18,8 +17,6 @@ from .utils import (
 )
 from helper_repos.sr.torchsr.torchsr.models import (
     ninasr_b0,
-    ninasr_b1,
-    ninasr_b2,
 )  # speed - quality tradeoff
 from helper_repos.denoise.scunet.models.network_scunet import SCUNet
 
@@ -109,6 +106,7 @@ class CardGameProxifier(ABC):
             )
         ).ok:
             return
+
         return card_image_response.content
 
     def process_card_image(
@@ -118,11 +116,15 @@ class CardGameProxifier(ABC):
         Card image processing pipeline.
         """
 
-        card_image = cv2.imdecode(np.frombuffer(card_image_bytes, np.uint8), -1)
+        card_image = cv2.imdecode(
+            np.frombuffer(card_image_bytes, np.uint8), cv2.IMREAD_UNCHANGED
+        )
+        card_image = convert_16bit_to_8bit(card_image)
         card_image = replace_alpha_with_solid(card_image)
         card_image = apply_superes_and_denoiser_pipeline(
             card_image, self.sr_model, self.denoise_model, width, height, self.device
         )
+
         return card_image
 
 

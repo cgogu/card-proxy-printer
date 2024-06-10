@@ -37,6 +37,7 @@ class Runner:
         with tqdm(
             self.decklist,
             total=len(self.decklist),
+            ascii=True,
             desc="[CARD-PROXY-PRINTER] Collect unique cards and tokens images",
         ) as pbar:
             for card_count, card_name, card_pitch in pbar:
@@ -70,7 +71,7 @@ class Runner:
             os.makedirs(self.config.path_to_output, exist_ok=True)
 
         with TemporaryDirectory(
-            prefix="tmp_", dir=self.config.path_to_output
+            prefix="tmpdir_", dir=self.config.path_to_output
         ) as tmpdir:
             for batch_index, batch_cards in enumerate(
                 batched(
@@ -82,4 +83,6 @@ class Runner:
                 self.canvas.new_page(batch_index + 1, num_pages)
                 self.canvas.fill_page(batch_cards)
                 self.canvas.save_page(tmpdir)
-            self.canvas.save_pdf(self.config.path_to_output, tmpdir)
+            self.canvas.save_pdf(
+                tmpdir, self.config.path_to_output, self.config.card_game_alias
+            )
