@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from functools import lru_cache
 
 import cv2
 import time
@@ -109,6 +110,7 @@ class CardGameProxifier(ABC):
 
         return card_image_response.content
 
+    @lru_cache
     def process_card_image(
         self, card_image_bytes: bytes, width: int, height: int
     ) -> np.ndarray:
@@ -268,15 +270,14 @@ class FABProxifier(CardGameProxifier):
         card_name: str,
         on_canvas_card_width_pixels: int,
         on_canvas_card_height_pixels: int,
-        processed_token_names: set | None = None,
-    ) -> dict:
+    ) -> tuple:
         """
         FAB generate card method.
         """
 
         if (card_payload := self.get_card(card_name)) is None:
             return
-        
+
         card_bytes, tokens_bytes, tokens_names = card_payload
 
         card = self.process_card_image(
@@ -285,16 +286,13 @@ class FABProxifier(CardGameProxifier):
             on_canvas_card_height_pixels,
         )
 
-        tokens = []
-        for token_name, token_bytes in zip(tokens_names, tokens_bytes):
-            if processed_token_names is None or token_name not in processed_token_names:
-                tokens.append(
-                    self.process_card_image(
-                        token_bytes,
-                        on_canvas_card_width_pixels,
-                        on_canvas_card_height_pixels
-                    )
-                )
-        processed_token_names.update(tokens_names)
+        tokens = {
+            token_name: self.process_card_image(
+                token_bytes,
+                on_canvas_card_width_pixels,
+                on_canvas_card_height_pixels,
+            )
+            for token_name, token_bytes in zip(tokens_names, tokens_bytes)
+        }
 
         return card, tokens

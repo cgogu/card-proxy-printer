@@ -68,19 +68,41 @@ class Canvas:
             ] = 0
 
         if num_page is not None and num_pages is not None:
-            page_text = f"{str(num_page).zfill(2)}/{str(num_pages).zfill(2)}"
-            (fw, fh), _ = cv2.getTextSize(
-                text=page_text,
+            # Top text
+            top_page_text = "card-proxy-printer"
+            (tw, th), _ = cv2.getTextSize(
+                text=top_page_text,
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=1,
                 thickness=2,
             )
             cv2.putText(
                 img=self.page,
-                text=page_text,
+                text=top_page_text,
                 org=[
-                    self.data_model.width_pixels // 2 - fw // 2,
-                    self.data_model.height_pixels - self.y_step // 2 + fh // 2,
+                    self.data_model.width_pixels // 2 - tw // 2,
+                    self.y_step // 2 + th // 2,
+                ],
+                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                fontScale=1,
+                color=[0, 0, 0],
+                thickness=2,
+            )
+
+            # Bottom text
+            bottom_page_text = f"{str(num_page).zfill(2)}/{str(num_pages).zfill(2)}"
+            (bw, bh), _ = cv2.getTextSize(
+                text=bottom_page_text,
+                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                fontScale=1,
+                thickness=2,
+            )
+            cv2.putText(
+                img=self.page,
+                text=bottom_page_text,
+                org=[
+                    self.data_model.width_pixels // 2 - bw // 2,
+                    self.data_model.height_pixels - self.y_step // 2 + bh // 2,
                 ],
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=1,

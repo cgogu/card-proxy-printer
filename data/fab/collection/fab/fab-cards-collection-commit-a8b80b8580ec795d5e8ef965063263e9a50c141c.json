@@ -1,13 +1,14 @@
 {
     "metadata": {
         "author": "cgogu",
-        "datetime": "10/06/2024-23:04:28",
+        "datetime": "12/06/2024-22:57:46",
         "hash": "a8b80b8580ec795d5e8ef965063263e9a50c141c",
         "dpi": 300,
-        "width_inch": 2.5,
-        "height_inch": 3.5,
-        "width_pixels": 750,
-        "height_pixels": 1050
+        "width_inch": 2.48,
+        "height_inch": 3.46,
+        "bleed_area_inch": 0.12,
+        "width_pixels": 816,
+        "height_pixels": 1110
     },
     "cards": {
         "10000-year-reunion": {
@@ -2146,8 +2147,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY-OLA/EN/OLA006.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
-                    "agility"
+                    "agility",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -2297,9 +2298,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY057.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
+                    "might",
                     "gold",
-                    "might"
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -4670,9 +4671,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2021-U-CRU/U-CRU188.png",
                 "backside": null,
                 "tokens": [
-                    "gold",
                     "silver",
-                    "copper"
+                    "copper",
+                    "gold"
                 ],
                 "is_token": false
             }
@@ -5437,8 +5438,8 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT159.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
-                    "ponder"
+                    "ponder",
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             }
@@ -5451,8 +5452,8 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT160.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "ponder",
-                    "frailty"
+                    "frailty",
+                    "ponder"
                 ],
                 "is_token": false
             }
@@ -5465,8 +5466,8 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT161.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "ponder",
-                    "inertia"
+                    "inertia",
+                    "ponder"
                 ],
                 "is_token": false
             }
@@ -6884,9 +6885,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-OUT-UZU/EN/UZU008.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             },
@@ -6897,9 +6898,9 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT163.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             },
@@ -6910,9 +6911,9 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT164.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             }
@@ -7634,9 +7635,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY-KYO/EN/KYO009.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
                     "might",
-                    "agility"
+                    "agility",
+                    "vigor"
                 ],
                 "is_token": false
             },
@@ -7647,9 +7648,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY214.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
                     "might",
-                    "agility"
+                    "agility",
+                    "vigor"
                 ],
                 "is_token": false
             },
@@ -7660,9 +7661,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY215.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
                     "might",
-                    "agility"
+                    "agility",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -9493,8 +9494,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-EVO/EN/EVO033.png",
                 "backside": null,
                 "tokens": [
-                    "quicken",
-                    "hyper-driver"
+                    "hyper-driver",
+                    "quicken"
                 ],
                 "is_token": false
             }
@@ -11716,8 +11717,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY-KSI/EN/KSI027.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
-                    "agility"
+                    "agility",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -11765,9 +11766,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY055.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
+                    "might",
                     "gold",
-                    "might"
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -13704,8 +13705,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2022-DYN/EN/DYN241.png",
                 "backside": null,
                 "tokens": [
-                    "gold",
-                    "copper"
+                    "copper",
+                    "gold"
                 ],
                 "is_token": false
             }
@@ -13961,9 +13962,9 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT192.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             },
@@ -13974,9 +13975,9 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT193.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             },
@@ -13987,9 +13988,9 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT194.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             }
@@ -14197,8 +14198,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-EVO/EN/EVO241.png",
                 "backside": null,
                 "tokens": [
-                    "courage",
-                    "quicken"
+                    "quicken",
+                    "courage"
                 ],
                 "is_token": false
             }
@@ -14715,10 +14716,10 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-TCC/EN/TCC050.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
                     "copper",
                     "might",
-                    "quicken"
+                    "quicken",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -14968,9 +14969,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2022-EVR/EVR159-RF.png",
                 "backside": null,
                 "tokens": [
-                    "gold",
                     "silver",
-                    "copper"
+                    "copper",
+                    "gold"
                 ],
                 "is_token": false
             }
@@ -17107,9 +17108,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY207.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
                     "might",
-                    "agility"
+                    "agility",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -17558,8 +17559,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD142.png",
                 "backside": null,
                 "tokens": [
-                    "nasreth-the-soul-harrower",
-                    "runechant"
+                    "runechant",
+                    "nasreth-the-soul-harrower"
                 ],
                 "is_token": false
             }
@@ -18684,8 +18685,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY089.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
-                    "might"
+                    "might",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -18709,9 +18710,9 @@
                 "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/OUT000.width-450.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             }
@@ -19361,8 +19362,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY058.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
-                    "might"
+                    "might",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -20255,8 +20256,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY105.png",
                 "backside": null,
                 "tokens": [
-                    "gold",
-                    "cintari-sellsword"
+                    "cintari-sellsword",
+                    "gold"
                 ],
                 "is_token": false
             }
@@ -26454,8 +26455,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY-VIC/EN/VIC007.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
-                    "might"
+                    "might",
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -28814,9 +28815,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-OUT-RIP/EN/RIP006.png",
                 "backside": null,
                 "tokens": [
-                    "bloodrot-pox",
+                    "inertia",
                     "frailty",
-                    "inertia"
+                    "bloodrot-pox"
                 ],
                 "is_token": false
             }
@@ -29076,9 +29077,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY061.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
+                    "might",
                     "gold",
-                    "might"
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -29275,13 +29276,13 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD079.png",
                 "backside": null,
                 "tokens": [
-                    "embodiment-of-lightning",
-                    "seismic-surge",
-                    "embodiment-of-earth",
                     "courage",
                     "eloquence",
-                    "spellbane-aegis",
-                    "spectral-shield"
+                    "seismic-surge",
+                    "embodiment-of-earth",
+                    "embodiment-of-lightning",
+                    "spectral-shield",
+                    "spellbane-aegis"
                 ],
                 "is_token": false
             }
@@ -29392,9 +29393,9 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-HVY/EN/HVY103.png",
                 "backside": null,
                 "tokens": [
-                    "vigor",
+                    "agility",
                     "gold",
-                    "agility"
+                    "vigor"
                 ],
                 "is_token": false
             }
@@ -30094,8 +30095,8 @@
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2024-MST/EN/MST225.png",
                 "backside": null,
                 "tokens": [
-                    "gold",
-                    "might"
+                    "might",
+                    "gold"
                 ],
                 "is_token": false
             }

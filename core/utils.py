@@ -280,7 +280,7 @@ def create_fab_cards_collection(
     name: str = "fab",
 ) -> None:
     """
-    Create FAB cards collection snapshot based on the-fab-cube:
+    Create FAB card collection snapshot based on the-fab-cube:
     https://github.com/the-fab-cube/flesh-and-blood-cards.
     """
 
@@ -320,7 +320,7 @@ def create_fab_cards_collection(
     if is_new_collection_available and past_cards_collection_path is not None:
         while True:
             overwrite_response = input(
-                "[CARD-PROXY-PRINTER] Overwrite cards collection? Enter yes/no to continue: "
+                "[CARD-PROXY-PRINTER] Overwrite card collection? Enter yes/no to continue: "
             )
             if overwrite_response == "yes" or overwrite_response == "no":
                 break
@@ -347,7 +347,7 @@ def create_fab_cards_collection(
             cards_parser,
             total=len(cards_parser),
             ascii=True,
-            desc="[CARD-PROXY-PRINTER] Creating new cards collection",
+            desc="[CARD-PROXY-PRINTER] Creating new card collection",
         ) as pbar:
             for card_data in pbar:
                 card = CardModel(
@@ -369,6 +369,7 @@ def create_fab_cards_collection(
                         "dpi": card.dpi,
                         "width_inch": card.width_inch,
                         "height_inch": card.height_inch,
+                        "bleed_area_inch": card.bleed_area_inch,
                         "width_pixels": card.width_pixels,
                         "height_pixels": card.height_pixels,
                     }
@@ -493,9 +494,9 @@ def create_fab_cards_collection(
             ) as cards_collection_file:
                 json.dump(fab_cards_collection, cards_collection_file, indent=4)
 
-            print("[CARD-PROXY-PRINTER] Saved and using new cards collection.")
+            print("[CARD-PROXY-PRINTER] Saved and using new card collection.")
     else:
-        print("[CARD-PROXY-PRINTER] Using current cards collection.")
+        print("[CARD-PROXY-PRINTER] Using current card collection.")
 
 
 # entry = "1 Sea Gate Restoration // Sea Gate, Reborn (ZNR) 333 *F*"

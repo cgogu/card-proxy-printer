@@ -30,15 +30,16 @@ class Runner:
                     f"{config.card_game_alias} not available. Only 'mtg' or 'fab' supported."
                 )
 
-    def _collect_unique_cards_and_tokens_images(self) -> list:
-        all_images = []
-        processed_token_names = set()
+    def _collect_decklist_cards_and_tokens(self) -> list:
+        main_cards = []
+        main_tokens = []
+        processed_token_names = []
 
         with tqdm(
             self.decklist,
             total=len(self.decklist),
             ascii=True,
-            desc="[CARD-PROXY-PRINTER] Collect unique cards and tokens images",
+            desc="[CARD-PROXY-PRINTER] Collect cards and associated tokens from decklist",
         ) as pbar:
             for card_count, card_name, card_pitch in pbar:
                 if (
@@ -46,21 +47,24 @@ class Runner:
                         f"{card_name}_{card_pitch}",
                         self.canvas.on_canvas_card_width_pixels,
                         self.canvas.on_canvas_card_height_pixels,
-                        processed_token_names,
                     )
                 ) is not None:
                     card, tokens = card_and_tokens
 
                     for _ in range(card_count):
-                        all_images.append(card)
-                    all_images.extend(tokens)
+                        main_cards.append(card)
 
-        return all_images
+                    for token_name, token in tokens.items():
+                        if token_name not in processed_token_names:
+                            main_tokens.append(token)
+                            processed_token_names.append(token_name)
+
+        return main_cards + main_tokens
 
     def run(self):
-        all_images = self._collect_unique_cards_and_tokens_images()
+        cards_and_tokens = self._collect_decklist_cards_and_tokens()
         num_pages = ceil(
-            len(all_images)
+            len(cards_and_tokens)
             / (
                 self.canvas.num_cards_per_page_width
                 * self.canvas.num_cards_per_page_height
@@ -75,7 +79,7 @@ class Runner:
         ) as tmpdir:
             for batch_index, batch_cards in enumerate(
                 batched(
-                    all_images,
+                    cards_and_tokens,
                     self.canvas.num_cards_per_page_width
                     * self.canvas.num_cards_per_page_height,
                 )
