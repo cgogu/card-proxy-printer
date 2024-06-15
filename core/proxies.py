@@ -75,6 +75,7 @@ class CardGameProxifier(ABC):
                 ),
                 strict=True,
             )
+            self.sr_model.to(self.device)
             self.sr_model.eval()
             for _, v in self.sr_model.named_parameters():
                 v.requires_grad = False
@@ -88,6 +89,7 @@ class CardGameProxifier(ABC):
                 ),
                 strict=True,
             )
+            self.denoise_model.to(self.device)
             self.denoise_model.eval()
             for _, v in self.denoise_model.named_parameters():
                 v.requires_grad = False
@@ -185,11 +187,9 @@ class FABProxifier(CardGameProxifier):
     ) -> None:
         super().__init__(name, endpoint, sr_weights_path, denoise_weights_path, use_api)
         if not use_api:
-            create_fab_cards_collection(
-                collection_input_path, collection_output_path, name
-            )
+            create_fab_cards_collection(collection_input_path, collection_output_path)
             self.cards_collection_parser = Parser().load(
-                get_ext_file(os.path.join(collection_output_path, name))
+                get_ext_file(collection_output_path)
             )
 
     def _get_card_by_api(self, card_name: str) -> dict | None:
@@ -242,10 +242,15 @@ class FABProxifier(CardGameProxifier):
         for token_type in ["tokens", "backside"]:
             if card_data.at_pointer(f"/{token_type}") is not None:
                 for token_name in card_data.at_pointer(f"/{token_type}"):
+                    if "_" in token_name:
+                        token_name, token_pitch = token_name.split("_")
+                    else:
+                        token_pitch = PITCHES("")
+
                     if (
                         token_image_bytes := self._url_to_bytes(
                             self.cards_collection_parser.at_pointer(
-                                f"/cards/{token_name}/{PITCHES[""]}/image_url"
+                                f"/cards/{token_name}/{token_pitch}/image_url"
                             )
                         )
                     ) is not None:

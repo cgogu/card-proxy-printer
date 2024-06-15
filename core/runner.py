@@ -17,8 +17,8 @@ class Runner:
                 self.proxifier = FABProxifier(
                     sr_weights_path=config.path_to_sr_weights,
                     denoise_weights_path=config.path_to_denoise_weights,
-                    collection_input_path=config.collection_input_path,
-                    collection_output_path=config.collection_output_path,
+                    collection_input_path=config.path_to_collection_input,
+                    collection_output_path=config.path_to_collection_output,
                 )
             case "mtg":
                 self.proxifier = MTGProxifier(

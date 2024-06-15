@@ -12,7 +12,10 @@ import numpy as np
 from tqdm import tqdm
 from git import Repo
 from simdjson import Parser
+from easydict import EasyDict as edict
+from yaml import safe_load
 from torchvision.transforms.functional import to_pil_image, to_tensor
+from unidecode import unidecode
 from helper_repos.denoise.scunet.utils.utils_image import uint2tensor4, tensor2uint
 from .models import CardModel
 
@@ -37,23 +40,25 @@ def get_cfg() -> argparse.Namespace:
     Arguments parser.
     """
 
-    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser = argparse.ArgumentParser(description="Card proxy printer")
+    parser.add_argument(
+        "--config",
+        type=str,
+        help="The aggregated config file",
+    )
     parser.add_argument(
         "--card-game-alias",
         type=str,
-        required=True,
         help="The card game alias (MTG or FAB)",
     )
     parser.add_argument(
         "--path-to-decklist",
         type=str,
-        required=True,
         help="Path to decklist to be proxied",
     )
     parser.add_argument(
         "--path-to-output",
         type=str,
-        required=True,
         help="Path to output to save the proxied decklist",
     )
     parser.add_argument(
@@ -67,16 +72,58 @@ def get_cfg() -> argparse.Namespace:
         help="Path to denoision model weights",
     )
     parser.add_argument(
-        "--collection-input-path",
+        "--path-to-collection-input",
         type=str,
         help="Path to local card collection that needs parsing",
     )
     parser.add_argument(
-        "--collection-output-path",
+        "--path-to-collection-output",
         type=str,
         help="Path to save local card collection after parsing",
     )
     return parser.parse_args()
+
+
+def parse_config(config: argparse.Namespace) -> edict | argparse.Namespace:
+    """
+    Configuration file injector with external file.
+    """
+
+    if hasattr(config, "config"):
+        with open(config.config, "r", encoding="utf-8") as config_file:
+            config_data = safe_load(config_file)
+
+        if (
+            config_data.get("path_to_data", None) is None
+            or config_data.get("card_game_alias", None) is None
+        ):
+            raise CardProxyError("Need to provide the data path and card game alias")
+
+        config_data["path_to_collection_input"] = os.path.join(
+            config_data["path_to_collection_input"], config_data["card_game_alias"]
+        )
+
+        for path, dirname in [
+            ["path_to_decklist", "input"],
+            ["path_to_output", "output"],
+            ["path_to_collection_output", "collection"],
+        ]:
+            config_data[path] = os.path.join(
+                config_data["path_to_data"], config_data["card_game_alias"], dirname
+            )
+
+        config = edict(config_data)
+    else:
+        if (
+            not hasattr(config, "path_to_decklist")
+            or not hasattr(config, "path_to_output")
+            or not hasattr(config, "path_to_collection_output")
+        ):
+            raise CardProxyError(
+                "Need to provide the run configuration file or full cli arguments."
+            )
+
+    return config
 
 
 def get_ext_file(input_path: str, ext: str = "json") -> str | None:
@@ -232,7 +279,7 @@ def encode_name(name: str, separator: str = "-") -> str:
 
     # Need to add "…" to punctuation
     return (
-        "".join(ch for ch in name if ch not in punctuation + "\u2026")
+        "".join(ch for ch in unidecode(name) if ch not in punctuation + "\u2026")
         .lower()
         .replace(" ", separator)
     )
@@ -277,7 +324,6 @@ def parse_decklist(path_to_decklist: str) -> list:
 def create_fab_cards_collection(
     path_to_data_root: str,
     path_to_data_output: str,
-    name: str = "fab",
 ) -> None:
     """
     Create FAB card collection snapshot based on the-fab-cube:
@@ -301,7 +347,7 @@ def create_fab_cards_collection(
         raise CardProxyError(f"{path_to_data_root} does not exist.")
 
     # Sync collection with latest changes
-    repo_path = next(iglob(os.path.join(path_to_data_root, name, "*")))
+    repo_path = next(iglob(os.path.join(path_to_data_root, "*")))
     repo_commit, is_new_collection_available = sync_with_remote(repo_path=repo_path)
 
     root_path = next(
@@ -314,8 +360,7 @@ def create_fab_cards_collection(
             recursive=True,
         )
     )
-    output_path = os.path.join(path_to_data_output, name)
-    past_cards_collection_path = get_ext_file(output_path)
+    past_cards_collection_path = get_ext_file(path_to_data_output)
 
     if is_new_collection_available and past_cards_collection_path is not None:
         while True:
@@ -357,6 +402,7 @@ def create_fab_cards_collection(
                     name=encode_name(card_data.get("name")),
                     foiling=card_data.get("foiling"),
                     pitch=PITCHES[card_data.get("pitch")],
+                    is_hero="Hero" in card_data.get("types", []),
                     is_token="Token" in card_data.get("types", []),
                     image_url=card_data.get("image_url"),
                 )
@@ -375,14 +421,19 @@ def create_fab_cards_collection(
                     }
 
                 # Skip wrong format
-                if card.image_url is not None and (
-                    "/ENG/" in card.image_url
-                    or "/promos/" in card.image_url
-                    or "/EN_OUT_" in card.image_url
-                    or "_V2" in card.image_url  # alternate artwork (full art)
-                ):
-                    __track_card_uuids(uuids_to_name, card)
-                    continue
+                if card.image_url is not None:
+                    lower_card_image_url = card.image_url.lower()
+                    if (
+                        "/eng/" in lower_card_image_url
+                        or "/promos/" in lower_card_image_url
+                        or "/en_out_" in lower_card_image_url
+                        or "_v2" in lower_card_image_url  # alternate artwork (full art)
+                        or (
+                            card.is_hero and "_back" in lower_card_image_url
+                        )  # alternate artwork (full art)
+                    ):
+                        __track_card_uuids(uuids_to_name, card)
+                        continue
 
                 # Keep only standard foiling cards and keep track of all uuids
                 if (
@@ -453,19 +504,39 @@ def create_fab_cards_collection(
                 for card in cards.values():
                     # Backsides
                     if card["backside"] is not None:
-                        card["backside"] = [
-                            *{
-                                uuids_to_name[backside_uuid]
-                                for backside_uuid in card["backside"]
-                            }
-                        ]
+                        backsides = []
+                        has_pitch = False
+
+                        for backside_uuid in card["backside"]:
+                            backside_name_splits = uuids_to_name[backside_uuid].split(
+                                "-"
+                            )
+
+                            # Backsides can have pitch values
+                            for pitch in PITCHES.values():
+                                if pitch == "colorless":
+                                    continue
+
+                                if backside_name_splits[-1] == pitch:
+                                    has_pitch = True
+
+                            backsides.append(
+                                "-".join(backside_name_splits[:-1])
+                                + "_"
+                                + backside_name_splits[-1]
+                                if has_pitch
+                                else "-".join(backside_name_splits)
+                            )
+                            has_pitch = False
+
+                        card["backside"] = backsides
 
                     # Tokens
                     if card["tokens"] is not None:
                         token_names = (
                             uuids_to_name[token_uuid] for token_uuid in card["tokens"]
                         )
-                        # Tokens (or referenced cards) are always colorless
+                        # Tokens are always colorless
                         tokens = [
                             *{
                                 token_name
@@ -479,15 +550,16 @@ def create_fab_cards_collection(
                         card["tokens"] = tokens if len(tokens) > 0 else None
 
             # Save collection snapshot on disk
-            if not os.path.exists(output_path):
-                os.makedirs(output_path, exist_ok=True)
+            if not os.path.exists(path_to_data_output):
+                os.makedirs(path_to_data_output, exist_ok=True)
 
             if past_cards_collection_path is not None and overwrite_response == "yes":
                 os.remove(past_cards_collection_path)
 
             with open(
                 os.path.join(
-                    output_path, f"{name}-cards-collection-commit-{repo_commit}.json"
+                    path_to_data_output,
+                    f"fab-cards-collection-commit-{repo_commit}.json",
                 ),
                 mode="w",
                 encoding="utf-8",
