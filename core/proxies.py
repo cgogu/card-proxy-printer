@@ -1,6 +1,4 @@
-import os
 from abc import ABC, abstractmethod
-from functools import lru_cache
 
 import cv2
 import time
@@ -11,7 +9,7 @@ from requests import Session
 from .utils import (
     replace_alpha_with_solid,
     convert_16bit_to_8bit,
-    apply_superes_and_denoiser_pipeline,
+    superes_and_denoiser_pipeline,
     create_fab_cards_collection,
     get_ext_file,
     PITCHES,
@@ -53,13 +51,43 @@ class CardGameProxifier(ABC):
 
         raise NotImplementedError
 
-    @abstractmethod
-    def generate_card(self):
+    def generate_card(
+        self,
+        first_card_part: str,
+        second_card_part: int,
+        on_canvas_card_width_pixels: int,
+        on_canvas_card_height_pixels: int,
+    ) -> tuple | None:
         """
-        Base generate card method.
+        Generate card method.
         """
 
-        raise NotImplementedError
+        if (payload := self.get_card(first_card_part, second_card_part)) is None:
+            return
+
+        cards_bytes, tokens_bytes, tokens_names = payload
+
+        cards = [
+            self.process_card_image(
+                card_bytes,
+                on_canvas_card_width_pixels,
+                on_canvas_card_height_pixels,
+                apply_denoiser=not self.device.type == "cpu",
+            )
+            for card_bytes in cards_bytes
+        ]
+
+        tokens = {
+            token_name: self.process_card_image(
+                token_bytes,
+                on_canvas_card_width_pixels,
+                on_canvas_card_height_pixels,
+                apply_denoiser=not self.device.type == "cpu",
+            )
+            for token_name, token_bytes in zip(tokens_names, tokens_bytes)
+        }
+
+        return cards, tokens
 
     def _generate_nn_models(self) -> None:
         """
@@ -94,14 +122,18 @@ class CardGameProxifier(ABC):
             for _, v in self.denoise_model.named_parameters():
                 v.requires_grad = False
 
-    def _url_to_bytes(self, card_image_url: str) -> bytes | None:
+    def _url_to_bytes(self, card_image_url: str | None) -> bytes | None:
         """
         Card image URL to bytes response.
         """
 
-        time.sleep(0.1)  # required
+        if card_image_url is None:
+            return
+
         if "?" in card_image_url:
             card_image_url = card_image_url.split("?")[0]
+
+        time.sleep(0.01)  # required
         if not (
             card_image_response := self.session.get(
                 url=card_image_url,
@@ -112,9 +144,12 @@ class CardGameProxifier(ABC):
 
         return card_image_response.content
 
-    @lru_cache
     def process_card_image(
-        self, card_image_bytes: bytes, width: int, height: int
+        self,
+        card_image_bytes: bytes,
+        width: int,
+        height: int,
+        apply_denoiser: bool = True,
     ) -> np.ndarray:
         """
         Card image processing pipeline.
@@ -125,8 +160,14 @@ class CardGameProxifier(ABC):
         )
         card_image = convert_16bit_to_8bit(card_image)
         card_image = replace_alpha_with_solid(card_image)
-        card_image = apply_superes_and_denoiser_pipeline(
-            card_image, self.sr_model, self.denoise_model, width, height, self.device
+        card_image = superes_and_denoiser_pipeline(
+            card_image,
+            self.sr_model,
+            self.denoise_model,
+            apply_denoiser,
+            width,
+            height,
+            self.device,
         )
 
         return card_image
@@ -137,37 +178,106 @@ class MTGProxifier(CardGameProxifier):
     MTG card game proxifier class.
     """
 
-    # MTG
-    # set_alias = "woe"
-    # collector_number = 3
-    # card_response = requests.get(f"https://api.scryfall.com/cards/{set_alias}/{collector_number}")
-    # if card_response is not None:
-    #     card_data = card_response.json()
-    # card_name = card_data["name"].lower().replace(" ", "-")
-    # image_response = requests.get(card_data["image_uris"]["png"])
-
     def __init__(
         self,
-        name: str = "MTG",
+        name: str = "mtg",
         endpoint: str = "https://api.scryfall.com/cards",
         sr_weights_path: str | None = None,
         denoise_weights_path: str | None = None,
     ) -> None:
         super().__init__(name, endpoint, sr_weights_path, denoise_weights_path)
 
-    def get_card(self, card_set_alias: str, card_set_collector_number: int):
+    def get_card(
+        self,
+        card_set_alias: str,
+        card_set_collector_number: int,
+        image_uri_version: str = "png",
+    ):
         """
         MTG get card method.
         """
 
-        pass
+        time.sleep(0.01)  # required
+        if not (
+            card_data_response := self.session.get(
+                url=f"{self.endpoint}/{card_set_alias}/{card_set_collector_number}",
+                verify=True,
+            )
+        ).ok:
+            print(
+                f"[CARD-PROXY-PRINTER] Can not get {card_set_alias}-{card_set_collector_number} card data, skipping..."
+            )
+            return
 
-    def generate_card(self):
-        """
-        MTG generate card method.
-        """
+        card_data = card_data_response.json()
+        card_faces = (
+            card_data["card_faces"]
+            if card_data.get("card_faces", None) is not None
+            else [card_data]
+        )
 
-        pass
+        is_split_card = False
+        cards_bytes = []
+        for card_face in card_faces:
+            if (
+                card_image_bytes := self._url_to_bytes(
+                    card_face.get("image_uris", {}).get(image_uri_version, None)
+                )
+            ) is None:
+                is_split_card = True
+                break
+
+            cards_bytes.append(card_image_bytes)
+
+        if is_split_card:
+            if (
+                card_image_bytes := self._url_to_bytes(
+                    card_data.get("image_uris", {}).get(image_uri_version, None)
+                )
+            ) is None:
+                print(
+                    f"[CARD-PROXY-PRINTER] Can not fetch {card_set_alias}-{card_set_collector_number} card image, skipping..."
+                )
+                return
+
+            cards_bytes.append(card_image_bytes)
+
+        tokens_bytes = []
+        tokens_names = []
+        if (token_parts := card_data.get("all_parts", None)) is not None:
+            for token_part in token_parts:
+                if token_part["component"] != "token":
+                    continue
+
+                time.sleep(0.01)  # required
+                if (
+                    token_part_data := self.session.get(
+                        url=token_part["uri"], verify=True
+                    )
+                ).ok:
+                    token_data = token_part_data.json()
+
+                    if (
+                        token_image_bytes := self._url_to_bytes(
+                            token_data.get("image_uris", {}).get(
+                                image_uri_version, None
+                            )
+                        )
+                    ) is None:
+                        print(
+                            (
+                                f"[CARD-PROXY-PRINTER] Can not fetch {token_data['set']}-{token_data['collector_number']} "
+                                "token image, skipping..."
+                            )
+                        )
+                        continue
+
+                    tokens_bytes.append(token_image_bytes)
+                    tokens_names.append(
+                        f"{token_data['set']}-{token_data['collector_number']}"
+                    )
+
+        return cards_bytes, tokens_bytes, tokens_names
 
 
 class FABProxifier(CardGameProxifier):
@@ -201,7 +311,7 @@ class FABProxifier(CardGameProxifier):
         # Card name and pitch value delimiter: "_"
         card_name = card_name.replace("_", "-")
 
-        time.sleep(0.1)  # required
+        time.sleep(0.01)  # required
         if not (
             card_data_response := self.session.get(
                 url=f"{self.endpoint}/{card_name}",
@@ -212,7 +322,9 @@ class FABProxifier(CardGameProxifier):
 
         card_data = card_data_response.json()
 
-        if (card_image_bytes := self._url_to_bytes(card_data.get("image", ""))) is None:
+        if (
+            card_image_bytes := self._url_to_bytes(card_data.get("image", None))
+        ) is None:
             return
 
         return card_image_bytes
@@ -226,7 +338,7 @@ class FABProxifier(CardGameProxifier):
         if "_" in card_name:
             card_name, card_pitch = card_name.split("_")
         else:
-            card_pitch = PITCHES("")
+            card_pitch = PITCHES[""]
 
         card_data = self.cards_collection_parser.at_pointer(
             f"/cards/{card_name}/{card_pitch}"
@@ -235,17 +347,22 @@ class FABProxifier(CardGameProxifier):
         if (
             card_image_bytes := self._url_to_bytes(card_data.at_pointer("/image_url"))
         ) is None:
+            print(
+                f"[CARD-PROXY-PRINTER] Can not find {card_name}_{card_pitch} card, skipping..."
+            )
             return
 
+        cards_bytes = [card_image_bytes]
+
         tokens_bytes = []
-        tokens_names = set()
+        tokens_names = []
         for token_type in ["tokens", "backside"]:
             if card_data.at_pointer(f"/{token_type}") is not None:
                 for token_name in card_data.at_pointer(f"/{token_type}"):
                     if "_" in token_name:
                         token_name, token_pitch = token_name.split("_")
                     else:
-                        token_pitch = PITCHES("")
+                        token_pitch = PITCHES[""]
 
                     if (
                         token_image_bytes := self._url_to_bytes(
@@ -255,49 +372,19 @@ class FABProxifier(CardGameProxifier):
                         )
                     ) is not None:
                         tokens_bytes.append(token_image_bytes)
-                        tokens_names.add(token_name)
+                        tokens_names.append(token_name)
 
-        return card_image_bytes, tokens_bytes, tokens_names
+        return cards_bytes, tokens_bytes, tokens_names
 
-    def get_card(self, card_name: str) -> list | None:
+    def get_card(self, card_name: str, card_pitch: str) -> list | None:
         """
         FAB get card method.
         """
 
+        full_card_name = f"{card_name}_{card_pitch}"
+
         return (
-            self._get_card_by_api(card_name)
+            self._get_card_by_api(full_card_name)
             if self.use_api
-            else self._get_card_by_collection(card_name)
+            else self._get_card_by_collection(full_card_name)
         )
-
-    def generate_card(
-        self,
-        card_name: str,
-        on_canvas_card_width_pixels: int,
-        on_canvas_card_height_pixels: int,
-    ) -> tuple:
-        """
-        FAB generate card method.
-        """
-
-        if (card_payload := self.get_card(card_name)) is None:
-            return
-
-        card_bytes, tokens_bytes, tokens_names = card_payload
-
-        card = self.process_card_image(
-            card_bytes,
-            on_canvas_card_width_pixels,
-            on_canvas_card_height_pixels,
-        )
-
-        tokens = {
-            token_name: self.process_card_image(
-                token_bytes,
-                on_canvas_card_width_pixels,
-                on_canvas_card_height_pixels,
-            )
-            for token_name, token_bytes in zip(tokens_names, tokens_bytes)
-        }
-
-        return card, tokens

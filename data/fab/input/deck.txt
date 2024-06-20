@@ -6,32 +6,3 @@
 1 Arcane Lantern
 1 Blacktek Whisperers
 1 Flick Knives
-1 Fyendal's Spring Tunic
-1 Mask of Perdition
-1 Nullrune Boots
-1 Nullrune Gloves
-2 Already Dead (red)
-3 Annihilate the Armed (red)
-3 Command and Conquer (red)
-3 Cut to the Chase (red)
-3 Death Touch (red)
-3 Fate Foreseen (red)
-3 Leave No Witnesses (red)
-2 Oasis Respite (red)
-3 Plunder the Poor (red)
-3 Sack the Shifty (red)
-3 Sigil of Solace (red)
-3 Sink Below (red)
-3 Slay the Scholars (red)
-3 Unmovable (red)
-3 Codex of Frailty (yellow)
-3 Eradicate (yellow)
-1 Plague Hive (yellow)
-3 Shred (yellow)
-3 Annihilate the Armed (blue)
-3 Coercive Tendency (blue)
-3 Plunder the Poor (blue)
-3 Shred (blue)
-3 Slay the Scholars (blue)
-3 Surgical Extraction (blue)
-1 Warmonger's Diplomacy (blue)

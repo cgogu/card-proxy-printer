@@ -188,10 +188,11 @@ def convert_16bit_to_8bit(image: np.ndarray) -> np.ndarray:
     return (image / 256).astype(np.uint8)
 
 
-def apply_superes_and_denoiser_pipeline(
+def superes_and_denoiser_pipeline(
     card_image: np.ndarray,
     sr_model: torch.nn.Module,
     denoise_model: torch.nn.Module,
+    apply_denoiser: bool,  # CPU heavy
     width: int,
     height: int,
     device: torch.device,
@@ -200,23 +201,21 @@ def apply_superes_and_denoiser_pipeline(
     Run super-resolution and denoising nn models over the input image.
     """
 
-    # SR
+    # Denoise
+    if apply_denoiser:
+        noisy_tensor = uint2tensor4(card_image).to(device)
+        clean_tensor = denoise_model(noisy_tensor)
+        card_image = tensor2uint(clean_tensor)
+
+    # Super resolution
     low_res_tensor = to_tensor(card_image).unsqueeze(0).to(device)
     high_res_tensor = sr_model(low_res_tensor)
     high_res_image = np.asarray(
         to_pil_image(high_res_tensor.squeeze(0).clamp(0, 1)), dtype=np.uint8
     )
 
-    # Resize to standard 2.5 x 3.5
-    high_res_image = cv2.resize(
-        high_res_image, (width, height), interpolation=cv2.INTER_AREA
-    )
-
-    # Denoise
-    noisy_tensor = uint2tensor4(high_res_image).to(device)
-    clean_tensor = denoise_model(noisy_tensor)
-
-    return tensor2uint(clean_tensor)
+    # Resize to standard
+    return cv2.resize(high_res_image, (width, height), interpolation=cv2.INTER_AREA)
 
 
 def sync_with_remote(repo_path: str, verbose: bool = True) -> tuple:
@@ -298,7 +297,7 @@ def split_name_and_pitch(name_and_pitch: str, separator: str = "-") -> tuple:
     return encoded, PITCHES[""]
 
 
-def parse_decklist(path_to_decklist: str) -> list:
+def parse_decklist(path_to_decklist: str, card_games_alias: str) -> list:
     """
     Parse and process decklist to respect the encoded format (see above).
     """
@@ -312,11 +311,28 @@ def parse_decklist(path_to_decklist: str) -> list:
     decklist = []
     with open(decklist_file_path, mode="r", encoding="utf-8") as decklist_file:
         while line := decklist_file.readline():
-            card_count, card_name = re.match(
-                r"(\d+)\s(.*)\s*", line.rstrip(), flags=re.VERBOSE
-            ).groups()
-            card_name, card_pitch = split_name_and_pitch(card_name)
-            decklist.append((int(card_count), card_name, card_pitch))
+            match card_games_alias:
+                case "fab":
+                    card_count, card_name = re.match(
+                        r"(\d+)\s(.*)\s*", line.rstrip(), flags=re.VERBOSE
+                    ).groups()
+                    card_name, card_pitch = split_name_and_pitch(card_name)
+                    decklist.append((int(card_count), card_name, card_pitch))
+                case "mtg":
+                    card_count, card_set_alias, card_set_collector_number = re.match(
+                        r"(\d+)\s.*\((\w+)\)\s(\d+)", line.rstrip(), flags=re.VERBOSE
+                    ).groups()
+                    decklist.append(
+                        (
+                            int(card_count),
+                            card_set_alias.lower(),
+                            card_set_collector_number,
+                        )
+                    )
+                case _:
+                    raise CardProxyError(
+                        f"Card games alias '{card_games_alias}' not supported."
+                    )
 
     return decklist
 

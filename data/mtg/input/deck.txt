@@ -1,0 +1,90 @@
+1 Magus Lucea Kane (40K) 174 *F*
+1 Aberrant (40K) 86
+1 Altered Ego (SOI) 241
+1 Animist's Awakening (C20) 166
+1 Arcane Signet (40K) 227
+1 Astral Cornucopia (CM2) 172
+1 Banefire (M19) 130
+1 Beast Within (LTC) 234
+1 Birds of Paradise (SLD) 92
+1 Blasphemous Act (LTC) 211
+1 Bloom Tender (2X2) 138
+1 Breeding Pool (RNA) 246
+1 Broodlord (40K) 89
+1 Command Tower (40K) 270
+1 Counterspell (TPR) 43
+1 Crackle with Power (STX) 95
+1 Craterhoof Behemoth (JMP) 385
+1 Curse of the Swine (KHC) 37
+1 Deflecting Swat (C20) 50
+1 Dominate (C15) 92
+1 Dreamroot Cascade (VOW) 262
+1 Drown in Dreams (MIC) 13
+1 Electrodominance (RNA) 99
+1 Elementalist's Palette (C21) 76
+1 Eternal Witness (CMA) 107
+1 Exocrine (40K) 76
+1 Exotic Orchard (40K) 278
+1 Expansion // Explosion (GRN) 224
+1 Farseek (LTC) 244
+1 Field of the Dead (M20) 247
+1 Fierce Guardianship (C20) 35
+1 Finale of Devastation (WAR) 160
+6 Forest (LTR) 271
+1 Frontier Bivouac (40K) 281
+1 Gadwick, the Wizened (ELD) 48
+1 Garruk's Uprising (M21) 186
+1 Genesis Hydra (NEC) 118
+1 Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun (LCI) 188
+1 Heroic Intervention (LTC) 249
+1 Hinterland Harbor (LTC) 317
+1 Hydroid Krasis (RNA) 183
+1 Incubation Druid (RNA) 131
+1 Invasion of Ikoria // Zilortha, Apex of Ikoria (MOM) 190
+4 Island (LTR) 265
+1 Karplusan Forest (DMU) 250
+1 Ketria Triome (IKO) 250
+1 Kodama of the West Tree (NEO) 199
+1 Malanthrope (40K) 132
+1 March of Swirling Mist (NEO) 61
+1 Mawloc (40K) 133
+1 Minamo, School at Water's Edge (CHK) 279
+3 Mountain (LTR) 268
+1 Nature's Lore (DMR) 170
+1 Nexos (40K) 95
+1 Open the Way (MAT) 23
+1 Pest Infestation (C21) 65
+1 Pull from Tomorrow (2X2) 62
+1 Purestrain Genestealer (40K) 97
+1 Ravener (40K) 138
+1 Rejuvenating Springs (LTC) 325
+1 Rockfall Vale (MID) 266
+1 Rootbound Crag (XLN) 256
+1 Rosheen Meanderer (IMA) 206
+1 Shatterskull Smashing // Shatterskull, the Hammer Pass (ZNR) 161
+1 Shivan Devastator (DMU) 143
+1 Shivan Reef (DMU) 255
+1 Sol Ring (40K) 249
+1 Spire Garden (BBD) 85
+1 Sporocyst (40K) 98
+1 Steam Vents (GRN) 257
+1 Steelbane Hydra (ELD) 322
+1 Stomping Ground (RNA) 259
+1 Stormcarved Coast (VOW) 265
+1 Sulfur Falls (LTC) 333
+1 Swiftfoot Boots (KHC) 105
+1 Temur Ascendancy (KTK) 207
+1 Termagant Swarm (40K) 99
+1 Tervigon (40K) 100
+1 Thassa's Intervention (THB) 72
+1 Thousand-Year Elixir (C21) 271
+1 Three Visits (CMR) 261
+1 Timeless Witness (MH2) 179
+1 Training Center (CMR) 358
+1 Tyrant Guard (40K) 103
+1 Tyvar's Stand (ONE) 190
+1 Unbound Flourishing (MH1) 189
+1 Voracious Hydra (M20) 200
+1 Yavimaya Coast (DMU) 261
+1 Yavimaya, Cradle of Growth (MH2) 261
+1 Zoanthrope (40K) 149

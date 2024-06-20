@@ -1,14 +1,14 @@
 {
     "metadata": {
         "author": "cgogu",
-        "datetime": "15/06/2024-21:00:54",
+        "datetime": "20/06/2024-22:04:54",
         "hash": "a8b80b8580ec795d5e8ef965063263e9a50c141c",
         "dpi": 300,
-        "width_inch": 2.48,
-        "height_inch": 3.46,
+        "width_inch": 2.46,
+        "height_inch": 3.52,
         "bleed_area_inch": 0.12,
-        "width_pixels": 816,
-        "height_pixels": 1110
+        "width_pixels": 810,
+        "height_pixels": 1128
     },
     "cards": {
         "10000-year-reunion": {
@@ -2348,8 +2348,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "agility",
-                    "vigor"
+                    "vigor",
+                    "agility"
                 ],
                 "backside": null
             }
@@ -2514,8 +2514,8 @@
                 "is_token": false,
                 "tokens": [
                     "might",
-                    "vigor",
-                    "gold"
+                    "gold",
+                    "vigor"
                 ],
                 "backside": null
             }
@@ -5115,9 +5115,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "silver",
+                    "copper",
                     "gold",
-                    "copper"
+                    "silver"
                 ],
                 "backside": null
             }
@@ -5982,8 +5982,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ponder",
-                    "inertia"
+                    "inertia",
+                    "ponder"
                 ],
                 "backside": null
             }
@@ -7539,9 +7539,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             },
@@ -7553,9 +7553,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             },
@@ -7567,9 +7567,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             }
@@ -8977,8 +8977,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ash",
-                    "aether-ashwing"
+                    "aether-ashwing",
+                    "ash"
                 ],
                 "backside": null
             },
@@ -8990,8 +8990,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ash",
-                    "aether-ashwing"
+                    "aether-ashwing",
+                    "ash"
                 ],
                 "backside": null
             },
@@ -9003,8 +9003,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ash",
-                    "aether-ashwing"
+                    "aether-ashwing",
+                    "ash"
                 ],
                 "backside": null
             }
@@ -10392,8 +10392,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "quicken",
-                    "hyper-driver"
+                    "hyper-driver",
+                    "quicken"
                 ],
                 "backside": null
             }
@@ -12825,8 +12825,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "agility",
-                    "vigor"
+                    "vigor",
+                    "agility"
                 ],
                 "backside": null
             }
@@ -12879,8 +12879,8 @@
                 "is_token": false,
                 "tokens": [
                     "might",
-                    "vigor",
-                    "gold"
+                    "gold",
+                    "vigor"
                 ],
                 "backside": null
             }
@@ -15002,8 +15002,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "gold",
-                    "copper"
+                    "copper",
+                    "gold"
                 ],
                 "backside": null
             }
@@ -15283,9 +15283,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             },
@@ -15297,9 +15297,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             },
@@ -15311,9 +15311,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             }
@@ -15541,8 +15541,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "quicken",
-                    "courage"
+                    "courage",
+                    "quicken"
                 ],
                 "backside": null
             }
@@ -16104,10 +16104,10 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "copper",
                     "might",
                     "vigor",
-                    "quicken",
-                    "copper"
+                    "quicken"
                 ],
                 "backside": null
             }
@@ -16379,9 +16379,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "silver",
+                    "copper",
                     "gold",
-                    "copper"
+                    "silver"
                 ],
                 "backside": null
             }
@@ -20471,9 +20471,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             }
@@ -22164,8 +22164,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "gold",
-                    "cintari-sellsword"
+                    "cintari-sellsword",
+                    "gold"
                 ],
                 "backside": null
             }
@@ -22179,8 +22179,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ash",
-                    "aether-ashwing"
+                    "aether-ashwing",
+                    "ash"
                 ],
                 "backside": null
             },
@@ -22192,8 +22192,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ash",
-                    "aether-ashwing"
+                    "aether-ashwing",
+                    "ash"
                 ],
                 "backside": null
             },
@@ -22205,8 +22205,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ash",
-                    "aether-ashwing"
+                    "aether-ashwing",
+                    "ash"
                 ],
                 "backside": null
             }
@@ -31537,9 +31537,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "inertia",
                     "bloodrot-pox",
-                    "frailty",
-                    "inertia"
+                    "frailty"
                 ],
                 "backside": null
             }
@@ -31826,8 +31826,8 @@
                 "is_token": false,
                 "tokens": [
                     "might",
-                    "vigor",
-                    "gold"
+                    "gold",
+                    "vigor"
                 ],
                 "backside": null
             }
@@ -32044,10 +32044,10 @@
                 "is_token": false,
                 "tokens": [
                     "seismic-surge",
-                    "courage",
-                    "embodiment-of-earth",
-                    "spectral-shield",
                     "eloquence",
+                    "embodiment-of-earth",
+                    "courage",
+                    "spectral-shield",
                     "spellbane-aegis",
                     "embodiment-of-lightning"
                 ],
@@ -32171,9 +32171,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "agility",
                     "vigor",
-                    "gold"
+                    "gold",
+                    "agility"
                 ],
                 "backside": null
             }

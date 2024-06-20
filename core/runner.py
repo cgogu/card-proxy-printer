@@ -11,7 +11,7 @@ class Runner:
     def __init__(self, config: dict) -> None:
         self.config = config
         self.canvas = Canvas(dpi=300)
-        self.decklist = parse_decklist(config.path_to_decklist)
+        self.decklist = parse_decklist(config.path_to_decklist, config.card_game_alias)
         match config.card_game_alias:
             case "fab":
                 self.proxifier = FABProxifier(
@@ -31,6 +31,10 @@ class Runner:
                 )
 
     def _collect_decklist_cards_and_tokens(self) -> list:
+        """
+        Gather all data (cards and tokens) based on decklist.
+        """
+
         main_cards = []
         main_tokens = []
         processed_token_names = []
@@ -41,18 +45,20 @@ class Runner:
             ascii=True,
             desc="[CARD-PROXY-PRINTER] Collect cards and associated tokens from decklist",
         ) as pbar:
-            for card_count, card_name, card_pitch in pbar:
+            for card_count, first_card_part, second_card_part in pbar:
                 if (
-                    card_and_tokens := self.proxifier.generate_card(
-                        f"{card_name}_{card_pitch}",
+                    cards_and_tokens := self.proxifier.generate_card(
+                        first_card_part,
+                        second_card_part,
                         self.canvas.on_canvas_card_width_pixels,
                         self.canvas.on_canvas_card_height_pixels,
                     )
                 ) is not None:
-                    card, tokens = card_and_tokens
+                    cards, tokens = cards_and_tokens
 
-                    for _ in range(card_count):
-                        main_cards.append(card)
+                    for card in cards:
+                        for _ in range(card_count):
+                            main_cards.append(card)
 
                     for token_name, token in tokens.items():
                         if token_name not in processed_token_names:
