@@ -320,8 +320,16 @@ def parse_decklist(path_to_decklist: str, card_games_alias: str) -> list:
                     decklist.append((int(card_count), card_name, card_pitch))
                 case "mtg":
                     card_count, card_set_alias, card_set_collector_number = re.match(
-                        r"(\d+)\s.*\((\w+)\)\s(\d+)", line.rstrip(), flags=re.VERBOSE
+                        r"(\d+)\s.*\(([a-zA-Z0-9]+)\)\s([a-zA-Z0-9-]+)",
+                        line.rstrip(),
+                        flags=re.VERBOSE,
                     ).groups()
+
+                    if card_set_alias == "PLST":
+                        card_set_alias, card_set_collector_number = (
+                            card_set_alias.split("-")
+                        )
+
                     decklist.append(
                         (
                             int(card_count),
