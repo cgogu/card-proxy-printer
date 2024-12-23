@@ -245,7 +245,7 @@ def sync_with_remote(repo_path: str, verbose: bool = True) -> tuple:
     )
 
     print(
-        f"[CARD-PROXY-PRINTER] Local branch is {num_commits_behind} commits behind remote branch."
+        f"[CARD-PROXY-PRINTER] Local branch is {num_commits_behind} commit(s) behind remote branch."
     )
 
     # if the local branch is behind, pull the changes
