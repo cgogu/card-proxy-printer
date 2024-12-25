@@ -327,7 +327,7 @@ def parse_decklist(path_to_decklist: str, card_games_alias: str) -> list:
 
                     if card_set_alias == "PLST":
                         card_set_alias, card_set_collector_number = (
-                            card_set_alias.split("-")
+                            card_set_collector_number.split("-")
                         )
 
                     decklist.append(
