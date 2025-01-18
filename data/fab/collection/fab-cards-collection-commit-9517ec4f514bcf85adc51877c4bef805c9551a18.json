@@ -1,14 +1,13 @@
 {
     "metadata": {
         "author": "cgogu",
-        "datetime": "23/12/2024-20:23:45",
-        "hash": "806ca8bcf8a0e18c0117319b0e83748cb57cb536",
+        "datetime": "2025-01-18T19-06-06.169720",
+        "hash": "9517ec4f514bcf85adc51877c4bef805c9551a18",
         "dpi": 300,
-        "width_inch": 2.46,
-        "height_inch": 3.52,
-        "bleed_area_inch": 0.12,
-        "width_pixels": 810,
-        "height_pixels": 1128
+        "width_inch": 2.48,
+        "height_inch": 3.46,
+        "width_pixels": 744,
+        "height_pixels": 1038
     },
     "cards": {
         "10000-year-reunion": {
@@ -2598,8 +2597,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "agility",
-                    "vigor"
+                    "vigor",
+                    "agility"
                 ],
                 "backside": null
             }
@@ -5619,8 +5618,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
-                    "agility"
+                    "agility",
+                    "might"
                 ],
                 "backside": null
             }
@@ -5837,12 +5836,26 @@
                 "backside": null
             }
         },
+        "channel-mount-isen": {
+            "blue": {
+                "uuid": "rFbFBgmNfJzFbdwhrJrgB",
+                "printing_uuid": "W7DfcbpcjCHNWz9J9P9KC",
+                "identifier": "AJV017",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV017.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": [
+                    "frostbite"
+                ],
+                "backside": null
+            }
+        },
         "channel-thunder-steppe": {
             "yellow": {
                 "uuid": "wDhLmGq88hHqJkBg89QDP",
-                "printing_uuid": "HQD9CLdM7n96fGtMf998h",
-                "identifier": "ELE175",
-                "image_url": "https://storage.googleapis.com/fabmaster/media/images/U-ELE175.width-450.png",
+                "printing_uuid": "98wfRQfjrFbPMHpdKdwd6",
+                "identifier": "LGS365",
+                "image_url": null,
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
@@ -6506,8 +6519,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ponder",
-                    "bloodrot-pox"
+                    "bloodrot-pox",
+                    "ponder"
                 ],
                 "backside": null
             }
@@ -6536,8 +6549,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "ponder",
-                    "inertia"
+                    "inertia",
+                    "ponder"
                 ],
                 "backside": null
             }
@@ -7294,6 +7307,18 @@
                 "backside": null
             }
         },
+        "cracker-bauble": {
+            "yellow": {
+                "uuid": "FzFpckchjNncjDCnzQ7Tp",
+                "printing_uuid": "q78zcHNM8Ln6nnLwp8kGd",
+                "identifier": "LGS360",
+                "image_url": null,
+                "is_hero": false,
+                "is_token": false,
+                "tokens": null,
+                "backside": null
+            }
+        },
         "cracker-jax": {
             "colorless": {
                 "uuid": "tbc6PrGdmPnPJkbN9DW9q",
@@ -7668,6 +7693,18 @@
                 "printing_uuid": "rLgbLzHrRWbrtgmhw8BTb",
                 "identifier": "CRU159",
                 "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2021-U-CRU/U-CRU159.png",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": null,
+                "backside": null
+            }
+        },
+        "crumble-to-eternity": {
+            "blue": {
+                "uuid": "mnKzqjmdQbtKgBLT6bFBj",
+                "printing_uuid": "pz6bjGjHcjhb9bzNFWfRM",
+                "identifier": "AJV018",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV018.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
@@ -8293,7 +8330,7 @@
                 "uuid": "gj6QqhDFKF6MtNncFMhmK",
                 "printing_uuid": "zj676F7prrzLLrt8htMfr",
                 "identifier": "DTD143",
-                "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD143.png",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/DTD143.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
@@ -8303,7 +8340,7 @@
                 "uuid": "DTPnFNqr9N8NcWNpDDC8B",
                 "printing_uuid": "JDmLW8WnfQpJbNJg9mCLf",
                 "identifier": "DTD144",
-                "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD144.png",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/DTD144.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
@@ -8313,7 +8350,7 @@
                 "uuid": "pkqN7kDrFhHhDrBmb7bhr",
                 "printing_uuid": "JBdBCLW6wWzrzDNNjJrGB",
                 "identifier": "DTD145",
-                "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD145.png",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/DTD145.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
@@ -8363,7 +8400,7 @@
                 "uuid": "LmkDGKnkq8qHfdQ9jh9nD",
                 "printing_uuid": "7CJfjhkBtWgr7RwJ8GBQT",
                 "identifier": "DTD146",
-                "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD146.png",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/DTD146.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
@@ -8375,7 +8412,7 @@
                 "uuid": "PgnDgtR8PgKfMLKHDph8k",
                 "printing_uuid": "tJLFbbtCQBHK7kLHTQQnC",
                 "identifier": "DTD147",
-                "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD147.png",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/DTD147.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
@@ -8387,7 +8424,7 @@
                 "uuid": "Fn8bTWKkJC77cqjfPmkjC",
                 "printing_uuid": "RdJRGFj9q9jHgMdDnmcGp",
                 "identifier": "DTD148",
-                "image_url": "https://storage.googleapis.com/fabmaster/cardfaces/2023-DTD/EN/DTD148.png",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/DTD148.webp",
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
@@ -9085,9 +9122,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
+                    "vigor",
                     "agility",
-                    "vigor"
+                    "might"
                 ],
                 "backside": null
             },
@@ -9099,9 +9136,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
+                    "vigor",
                     "agility",
-                    "vigor"
+                    "might"
                 ],
                 "backside": null
             },
@@ -9113,9 +9150,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
+                    "vigor",
                     "agility",
-                    "vigor"
+                    "might"
                 ],
                 "backside": null
             }
@@ -9727,8 +9764,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "aether-ashwing",
-                    "ash"
+                    "ash",
+                    "aether-ashwing"
                 ],
                 "backside": null
             },
@@ -9740,8 +9777,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "aether-ashwing",
-                    "ash"
+                    "ash",
+                    "aether-ashwing"
                 ],
                 "backside": null
             },
@@ -9753,8 +9790,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "aether-ashwing",
-                    "ash"
+                    "ash",
+                    "aether-ashwing"
                 ],
                 "backside": null
             }
@@ -11314,8 +11351,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "hyper-driver",
-                    "quicken"
+                    "quicken",
+                    "hyper-driver"
                 ],
                 "backside": null
             }
@@ -13462,6 +13499,20 @@
                 "backside": null
             }
         },
+        "frozen-to-death": {
+            "blue": {
+                "uuid": "f8tNHBndcKqGPGbhQNmWw",
+                "printing_uuid": "dJgPfKDnhLCnDdRQ9CMt8",
+                "identifier": "AJV020",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV020.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": [
+                    "frostbite"
+                ],
+                "backside": null
+            }
+        },
         "fruits-of-the-forest": {
             "red": {
                 "uuid": "jhPjMTDtrz9MqcwFkQrkL",
@@ -13784,6 +13835,18 @@
                 "backside": null
             }
         },
+        "gauntlets-of-the-boreal-domain": {
+            "colorless": {
+                "uuid": "HTF6WHdnfmgHD7pBFhMQL",
+                "printing_uuid": "rNp7MgPGd9Kzmdb7BKR6N",
+                "identifier": "AJV006",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV006.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": null,
+                "backside": null
+            }
+        },
         "gaze-the-ages": {
             "blue": {
                 "uuid": "RzdGctLgfrTtr7MWkBwWr",
@@ -13833,8 +13896,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "runechant",
-                    "embodiment-of-earth"
+                    "embodiment-of-earth",
+                    "runechant"
                 ],
                 "backside": null
             }
@@ -14112,8 +14175,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "agility",
-                    "vigor"
+                    "vigor",
+                    "agility"
                 ],
                 "backside": null
             }
@@ -17700,6 +17763,20 @@
                 "backside": null
             }
         },
+        "jarl-vetreidi": {
+            "colorless": {
+                "uuid": "9QL68DDb9hCqhWWhgnQgR",
+                "printing_uuid": "HtKkbBn6QWWc8T9KdKqwR",
+                "identifier": "AJV001",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV001.webp",
+                "is_hero": true,
+                "is_token": false,
+                "tokens": [
+                    "frostbite"
+                ],
+                "backside": null
+            }
+        },
         "jinglewood-smash-hit": {
             "colorless": {
                 "uuid": "GK6TKkztnwHHwqKPrGR9k",
@@ -17709,8 +17786,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
                     "vigor",
+                    "might",
                     "copper",
                     "quicken"
                 ],
@@ -20472,9 +20549,9 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
+                    "vigor",
                     "agility",
-                    "vigor"
+                    "might"
                 ],
                 "backside": null
             }
@@ -20976,8 +21053,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "runechant",
-                    "nasreth-the-soul-harrower"
+                    "nasreth-the-soul-harrower",
+                    "runechant"
                 ],
                 "backside": null
             }
@@ -21015,6 +21092,20 @@
                 "is_hero": true,
                 "is_token": false,
                 "tokens": null,
+                "backside": null
+            }
+        },
+        "ollin-ice-cap": {
+            "colorless": {
+                "uuid": "W89dCjCrz8cQKd78zHFBR",
+                "printing_uuid": "kjKRMLzhFNJDdFGgNRMp7",
+                "identifier": "AJV004",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV004.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": [
+                    "frostbite"
+                ],
                 "backside": null
             }
         },
@@ -22383,8 +22474,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
-                    "vigor"
+                    "vigor",
+                    "might"
                 ],
                 "backside": null
             }
@@ -23180,8 +23271,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
-                    "vigor"
+                    "vigor",
+                    "might"
                 ],
                 "backside": null
             }
@@ -24186,8 +24277,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "aether-ashwing",
-                    "ash"
+                    "ash",
+                    "aether-ashwing"
                 ],
                 "backside": null
             },
@@ -24199,8 +24290,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "aether-ashwing",
-                    "ash"
+                    "ash",
+                    "aether-ashwing"
                 ],
                 "backside": null
             },
@@ -24212,8 +24303,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "aether-ashwing",
-                    "ash"
+                    "ash",
+                    "aether-ashwing"
                 ],
                 "backside": null
             }
@@ -24447,8 +24538,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
-                    "agility"
+                    "agility",
+                    "might"
                 ],
                 "backside": null
             }
@@ -26252,6 +26343,20 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
+                "backside": null
+            }
+        },
+        "rootbound-trunks": {
+            "colorless": {
+                "uuid": "jnM9JWHGJqdtjPmLCbGMm",
+                "printing_uuid": "BknnBNczNjdttNm9zC7QT",
+                "identifier": "AJV007",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV007.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": [
+                    "embodiment-of-earth"
+                ],
                 "backside": null
             }
         },
@@ -29928,8 +30033,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
-                    "agility"
+                    "agility",
+                    "might"
                 ],
                 "backside": null
             }
@@ -31188,6 +31293,18 @@
                 "backside": null
             }
         },
+        "spirit-of-christmas": {
+            "blue": {
+                "uuid": "bQ8GJhJQwBd9JRFkcJQqG",
+                "printing_uuid": "9mdDr6mMJdDhp8JKB6ckq",
+                "identifier": "LGS355",
+                "image_url": "https://dhhim4ltzu1pj.cloudfront.net/media/images/LGS355.original.png",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": null,
+                "backside": null
+            }
+        },
         "spirit-of-eirina": {
             "yellow": {
                 "uuid": "hcRgHbGGNmwCTQMBF6CQh",
@@ -31541,8 +31658,8 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
-                    "might",
-                    "vigor"
+                    "vigor",
+                    "might"
                 ],
                 "backside": null
             }
@@ -32347,6 +32464,20 @@
                 "backside": null
             }
         },
+        "summit-the-unforgiving": {
+            "colorless": {
+                "uuid": "mdKJt7RCqRRrW6PbnJztL",
+                "printing_uuid": "Djg9dfzKqLtNG986MLjhH",
+                "identifier": "AJV002",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV002.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": [
+                    "frostbite"
+                ],
+                "backside": null
+            }
+        },
         "sun-kiss": {
             "red": {
                 "uuid": "QqKLnDCDCgnqtz8bzgFRt",
@@ -33100,6 +33231,20 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": null,
+                "backside": null
+            }
+        },
+        "tectonic-crust": {
+            "colorless": {
+                "uuid": "gjCz8rLDrG7h7MQpBwGHz",
+                "printing_uuid": "qfNtHHBkGKHT8kNTwKkHh",
+                "identifier": "AJV005",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV005.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": [
+                    "seismic-surge"
+                ],
                 "backside": null
             }
         },
@@ -34917,6 +35062,18 @@
                 "backside": null
             }
         },
+        "unforgetting-unforgiving": {
+            "red": {
+                "uuid": "DKFj9DK7f9nHrQffkdfDm",
+                "printing_uuid": "77bkWzKqk77cztMwWLpHF",
+                "identifier": "AJV013",
+                "image_url": "https://d2wlb52bya4y8z.cloudfront.net/media/cards/large/AJV013.webp",
+                "is_hero": false,
+                "is_token": false,
+                "tokens": null,
+                "backside": null
+            }
+        },
         "unhallowed-rites": {
             "red": {
                 "uuid": "MwMJK9DPnDgKBfjFTFmCW",
@@ -34970,13 +35127,13 @@
                 "is_hero": false,
                 "is_token": false,
                 "tokens": [
+                    "embodiment-of-earth",
                     "seismic-surge",
-                    "courage",
+                    "spectral-shield",
                     "embodiment-of-lightning",
                     "spellbane-aegis",
-                    "embodiment-of-earth",
-                    "spectral-shield",
-                    "eloquence"
+                    "eloquence",
+                    "courage"
                 ],
                 "backside": null
             }

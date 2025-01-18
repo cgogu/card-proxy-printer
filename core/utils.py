@@ -434,12 +434,11 @@ def create_fab_cards_collection(
                 if "metadata" not in fab_cards_collection:
                     fab_cards_collection["metadata"] = {
                         "author": "cgogu",
-                        "datetime": datetime.now().strftime("%d/%m/%Y-%H:%M:%S"),
+                        "datetime": datetime.now().isoformat().replace(":", "-"),
                         "hash": str(repo_commit),
                         "dpi": card.dpi,
                         "width_inch": card.width_inch,
                         "height_inch": card.height_inch,
-                        "bleed_area_inch": card.bleed_area_inch,
                         "width_pixels": card.width_pixels,
                         "height_pixels": card.height_pixels,
                     }

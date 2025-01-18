@@ -1,8 +1,37 @@
-1 Arakni, Huntsman
-1 Nerve Scalpel
-1 Orbitoclast
-1 Scale Peeler
-1 Spider's Bite
-1 Arcane Lantern
-1 Blacktek Whisperers
-1 Flick Knives
+1 Jarl Vetreidi
+1 Crown of Providence
+1 Gauntlets of the Boreal Domain
+1 Heart of Ice
+1 Nullrune Boots
+1 Nullrune Hood
+1 Ollin Ice Cap
+1 Root-Bound Trunks
+1 Stalagmite, Bastion of Isenloft
+1 Summit, the Unforgiving
+1 Tectonic Plating
+3 Command and Conquer (red)
+3 Enlightened Strike (red)
+3 Ice Quake (red)
+3 Mangle (red)
+3 Oaken Old (red)
+2 Pulverize (red)
+2 Pummel (red)
+3 Sink Below (red)
+3 Spinal Crush (red)
+2 The Weakest Link (red)
+3 Unforgetting Unforgiving (red)
+2 Blizzard (blue)
+3 Channel Lake Frigid (blue)
+3 Channel Mount Isen (blue)
+3 Cold Snap (blue)
+3 Crumble to Eternity (blue)
+3 Frozen to Death (blue)
+3 Hypothermia (blue)
+3 Imposing Visage (blue)
+1 Pulse of Isenloft (blue)
+3 Seeds of Tomorrow (blue)
+2 Snag (blue)
+3 Tear Asunder (blue)
+3 Thunder Quake (blue)
+3 Winter's Bite (blue)
+2 Winter's Grasp (blue)

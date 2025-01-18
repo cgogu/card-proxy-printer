@@ -5,7 +5,7 @@ from datetime import datetime
 import cv2
 import numpy as np
 from natsort import natsorted
-from img2pdf import convert as pdf_convert
+from fpdf import FPDF
 from .models import CanvasModel, CardModel
 
 
@@ -182,14 +182,28 @@ class Canvas:
         """
         Save canvas pages as a PDF file.
         """
-        
-        with open(
+
+        decklist_pdf = FPDF(orientation="portrait", unit="in", format="A4")
+
+        for current_canvas_page_path in natsorted(
+            glob(os.path.join(tmpdir, f"*.{self.image_ext}"), recursive=True)
+        ):
+            decklist_pdf.add_page()
+            decklist_pdf.image(
+                current_canvas_page_path,
+                x=0,
+                y=0,
+                w=self.data_model.width_inch,
+                h=self.data_model.height_inch,
+            )
+
+        decklist_pdf.output(
             output_pdf_path := os.path.join(
                 path_to_output,
-                f"{card_game_alias}-deck-snapshot-{datetime.now().strftime("%d%m%Y%H%M%S")}.pdf",
-            ), "wb"
-        ) as pdf_file:
-            pages = natsorted(glob(os.path.join(tmpdir, f"*.{self.image_ext}"), recursive=True))
-            pdf_file.write(pdf_convert(pages))
+                f"{card_game_alias}-deck-snapshot-{datetime.now().isoformat().replace(':', '-')}.pdf",
+            )
+        )
 
-        print(f"[CARD-PROXY-PRINTER] Done proxying decklist with output at: {output_pdf_path}.")
+        print(
+            f"[CARD-PROXY-PRINTER] Done proxying decklist with output at: {output_pdf_path}."
+        )
