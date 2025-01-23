@@ -7,7 +7,7 @@ class CardModel(BaseModel):
     """
     Card data model.
 
-    Magic cards are printed at 63 x 88 millimeters (2.48 x 3.56 inches).
+    Magic cards are printed at 63 x 88 millimeters.
     """
 
     uuid: str | None = Field(default=None)  # fab-cube-cards db id
@@ -34,9 +34,9 @@ class CardModel(BaseModel):
         Post initalization processing.
         """
 
-        mm2inch = 25.4
-        self.width_inch = round(self.width_mm / mm2inch, 2)
-        self.height_inch = round(self.height_mm / mm2inch, 2)
+        mm2inch = 24.4  # use this instead of 25.4 for printing fix at 'Actual Size' printer settings
+        self.width_inch = self.width_mm / mm2inch
+        self.height_inch = self.height_mm / mm2inch
         self.width_pixels = round(self.dpi * self.width_inch)
         self.height_pixels = round(self.dpi * self.height_inch)
         return super().model_post_init(__context)
