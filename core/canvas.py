@@ -200,10 +200,12 @@ class Canvas:
         decklist_pdf.output(
             output_pdf_path := os.path.join(
                 path_to_output,
-                f"{card_game_alias}-deck-snapshot-{datetime.now().isoformat().replace(':', '-')}.pdf",
+                f"{card_game_alias}-deck-snapshot-a4-actual-size-print-setup-{datetime.now().isoformat().replace(':', '-')}.pdf",
             )
         )
 
         print(
-            f"[CARD-PROXY-PRINTER] Done proxying decklist with output at: {output_pdf_path}."
+            f"[CARD-PROXY-PRINTER] Done proxying decklist with output at: {output_pdf_path}. "
+            "Print the decklist using the A4 'Actual Size' printer page sizing and handling for "
+            "the expected layout and cards size."
         )
