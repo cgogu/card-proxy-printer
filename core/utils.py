@@ -429,6 +429,7 @@ def create_fab_cards_collection(
                     is_hero="Hero" in card_data.get("types", []),
                     is_token="Token" in card_data.get("types", []),
                     image_url=card_data.get("image_url"),
+                    art_variations=card_data.get("art_variations", []),
                 )
 
                 if "metadata" not in fab_cards_collection:
@@ -454,6 +455,7 @@ def create_fab_cards_collection(
                         or (
                             card.is_hero and "_back" in lower_card_image_url
                         )  # alternate artwork (full art)
+                        or len(card.art_variations) > 0  # alternate artwork (full art)
                     ):
                         __track_card_uuids(uuids_to_name, card)
                         continue
