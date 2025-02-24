@@ -13,6 +13,7 @@ from .utils import (
     parse_decklist,
     PITCHES,
 )
+from .decorators import deprecated
 from .runner import Runner
 
 __all__ = (
@@ -32,4 +33,5 @@ __all__ = (
     "parse_decklist",
     "Runner",
     "PITCHES",
+    "deprecated",
 )

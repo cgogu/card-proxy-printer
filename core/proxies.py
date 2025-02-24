@@ -14,8 +14,9 @@ from .utils import (
     get_ext_file,
     PITCHES,
 )
+from .decorators import deprecated
 from helper_repos.sr.torchsr.torchsr.models import (
-    ninasr_b0,
+    ninasr_b2,
 )  # speed - quality tradeoff
 from helper_repos.denoise.scunet.models.network_scunet import SCUNet
 
@@ -65,7 +66,7 @@ class CardGameProxifier(ABC):
         if (payload := self.get_card(first_card_part, second_card_part)) is None:
             return
 
-        cards_bytes, tokens_bytes, tokens_names = payload
+        cards_bytes, cards_names, tokens_bytes, tokens_names = payload
 
         cards = [
             self.process_card_image(
@@ -73,8 +74,9 @@ class CardGameProxifier(ABC):
                 on_canvas_card_width_pixels,
                 on_canvas_card_height_pixels,
                 apply_denoiser=not self.device.type == "cpu",
+                apply_rotation="--" in card_name,  # FAB split cards with "//"
             )
-            for card_bytes in cards_bytes
+            for card_name, card_bytes in zip(cards_names, cards_bytes)
         ]
 
         tokens = {
@@ -95,7 +97,7 @@ class CardGameProxifier(ABC):
         """
 
         if self.sr_weights_path is not None:
-            self.sr_model = ninasr_b0(scale=4, pretrained=False)
+            self.sr_model = ninasr_b2(scale=4, pretrained=False)
             self.sr_model.load_state_dict(
                 torch.load(
                     self.sr_weights_path,
@@ -150,6 +152,7 @@ class CardGameProxifier(ABC):
         width: int,
         height: int,
         apply_denoiser: bool = True,
+        apply_rotation: bool = False,
     ) -> np.ndarray:
         """
         Card image processing pipeline.
@@ -159,6 +162,8 @@ class CardGameProxifier(ABC):
             np.frombuffer(card_image_bytes, np.uint8), cv2.IMREAD_UNCHANGED
         )
         card_image = convert_16bit_to_8bit(card_image)
+        if apply_rotation:
+            card_image = cv2.rotate(card_image, rotateCode=cv2.ROTATE_90_CLOCKWISE)
         card_image = replace_alpha_with_solid(card_image)
         card_image = superes_and_denoiser_pipeline(
             card_image,
@@ -218,6 +223,7 @@ class MTGProxifier(CardGameProxifier):
 
         is_split_card = False
         cards_bytes = []
+        cards_names = []
         for card_face in card_faces:
             if (
                 card_image_bytes := self._url_to_bytes(
@@ -228,6 +234,7 @@ class MTGProxifier(CardGameProxifier):
                 break
 
             cards_bytes.append(card_image_bytes)
+            cards_names.append({card_set_alias} - {card_set_collector_number})
 
         if is_split_card:
             if (
@@ -241,6 +248,7 @@ class MTGProxifier(CardGameProxifier):
                 return
 
             cards_bytes.append(card_image_bytes)
+            cards_names.append({card_set_alias} - {card_set_collector_number})
 
         tokens_bytes = []
         tokens_names = []
@@ -277,7 +285,7 @@ class MTGProxifier(CardGameProxifier):
                         f"{token_data['set']}-{token_data['collector_number']}"
                     )
 
-        return cards_bytes, tokens_bytes, tokens_names
+        return cards_bytes, cards_names, tokens_bytes, tokens_names
 
 
 class FABProxifier(CardGameProxifier):
@@ -302,6 +310,7 @@ class FABProxifier(CardGameProxifier):
                 get_ext_file(collection_output_path)
             )
 
+    @deprecated("Use get_card_by_collection() instead.")
     def _get_card_by_api(self, card_name: str) -> dict | None:
         """
         FAB get card using FABDB API: https://fabdb.net/resources/api.
@@ -353,6 +362,7 @@ class FABProxifier(CardGameProxifier):
             return
 
         cards_bytes = [card_image_bytes]
+        cards_names = [card_name]
 
         tokens_bytes = []
         tokens_names = []
@@ -374,7 +384,7 @@ class FABProxifier(CardGameProxifier):
                         tokens_bytes.append(token_image_bytes)
                         tokens_names.append(token_name)
 
-        return cards_bytes, tokens_bytes, tokens_names
+        return cards_bytes, cards_names, tokens_bytes, tokens_names
 
     def get_card(self, card_name: str, card_pitch: str) -> list | None:
         """

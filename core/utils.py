@@ -378,7 +378,7 @@ def create_fab_cards_collection(
         iglob(
             os.path.join(
                 repo_path,
-                "**",
+                "json",
                 "english",
             ),
             recursive=True,

@@ -28,7 +28,7 @@ class CardModel(BaseModel):
     height_inch: float | None = Field(default=None, exclude=True)
     width_pixels: int | None = Field(default=None)
     height_pixels: int | None = Field(default=None)
-    art_variations: list | None = Field(default=None)
+    art_variations: list | None = Field(default=None, exclude=True)
 
     def model_post_init(self, __context: Any) -> None:
         """
