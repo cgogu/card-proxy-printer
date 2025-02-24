@@ -25,6 +25,9 @@ PITCHES = {
     "2": "yellow",
     "3": "blue",
 }
+CUSTOM_PUNCTUATION = (
+    punctuation.replace("()", "") + "\u2026"
+)  # Need to add "…" to punctuation
 
 
 class CardProxyError(Exception):
@@ -276,15 +279,16 @@ def encode_name(name: str, separator: str = "-") -> str:
     ex: Test's name.. -> tests name -> tests-name
     """
 
-    # Need to add "…" to punctuation
     return (
-        "".join(ch for ch in unidecode(name) if ch not in punctuation + "\u2026")
+        "".join(ch for ch in unidecode(name) if ch not in CUSTOM_PUNCTUATION)
         .lower()
         .replace(" ", separator)
     )
 
 
-def split_name_and_pitch(name_and_pitch: str, separator: str = "-") -> tuple:
+def split_name_and_pitch(
+    name_and_pitch: str, decklist_pitch_format: list, separator: str = "-"
+) -> tuple:
     """
     Split name and pitch. Add pitch when non existent and encode the name.
     """
@@ -292,8 +296,8 @@ def split_name_and_pitch(name_and_pitch: str, separator: str = "-") -> tuple:
     encoded = encode_name(name_and_pitch)
     encoded_splits = encoded.split(separator)
 
-    if encoded_splits[-1] in ["red", "yellow", "blue"]:
-        return f"{separator}".join(encoded_splits[:-1]), encoded_splits[-1]
+    if encoded_splits[-1] in decklist_pitch_format:
+        return f"{separator}".join(encoded_splits[:-1]), encoded_splits[-1][1:-1]
     return encoded, PITCHES[""]
 
 
@@ -308,6 +312,12 @@ def parse_decklist(path_to_decklist: str, card_games_alias: str) -> list:
     if (decklist_file_path := get_ext_file(path_to_decklist, ext="txt")) is None:
         raise CardProxyError(f"No text decklist can be found at {path_to_decklist}.")
 
+    decklist_pitch_format = [
+        f"({pitch_color})"
+        for pitch_color in PITCHES.values()
+        if pitch_color != "colorless"
+    ]
+
     decklist = []
     with open(decklist_file_path, mode="r", encoding="utf-8") as decklist_file:
         while line := decklist_file.readline():
@@ -316,7 +326,9 @@ def parse_decklist(path_to_decklist: str, card_games_alias: str) -> list:
                     card_count, card_name = re.match(
                         r"(\d+)\s(.*)\s*", line.rstrip(), flags=re.VERBOSE
                     ).groups()
-                    card_name, card_pitch = split_name_and_pitch(card_name)
+                    card_name, card_pitch = split_name_and_pitch(
+                        card_name, decklist_pitch_format
+                    )
                     decklist.append((int(card_count), card_name, card_pitch))
                 case "mtg":
                     card_count, card_set_alias, card_set_collector_number = re.match(
