@@ -1,4 +1,4 @@
-import json
+import os
 import time
 from abc import ABC, abstractmethod
 
@@ -6,7 +6,6 @@ import cv2
 import numpy as np
 import torch
 from requests import Session
-from simdjson import Parser
 
 from cardproxy.helper_repos.denoise.scunet.models.network_scunet import SCUNet
 from cardproxy.helper_repos.sr.torchsr.torchsr.models import (
@@ -16,12 +15,12 @@ from cardproxy.helper_repos.sr.torchsr.torchsr.models import (
 from .constants import PITCHES
 from .decorators import deprecated
 from .fab_collection import create_fab_cards_collection
+from .fab_db import DB_FILENAME, FabCollectionDB
 from .image_ops import (
     convert_16bit_to_8bit,
     replace_alpha_with_solid,
     superes_and_denoiser_pipeline,
 )
-from .utils import get_ext_file
 
 
 class CardGameProxifier(ABC):
@@ -280,10 +279,8 @@ class MTGProxifier(CardGameProxifier):
                         )
                     ) is None:
                         print(
-
-                                f"[CARD-PROXY-PRINTER] Can not fetch {token_data['set']}-{token_data['collector_number']} "
-                                "token image, skipping..."
-
+                            f"[CARD-PROXY-PRINTER] Can not fetch {token_data['set']}-{token_data['collector_number']} "
+                            "token image, skipping..."
                         )
                         continue
 
@@ -312,33 +309,27 @@ class FABProxifier(CardGameProxifier):
         interactive: bool = True,
     ) -> None:
         super().__init__(name, endpoint, sr_weights_path, denoise_weights_path, use_api)
-        self._identifier_index: dict[str, tuple[str, str]] = {}
+        self.cards_db: FabCollectionDB | None = None
         if not use_api:
             create_fab_cards_collection(
                 collection_input_path,
                 collection_output_path,
                 interactive=interactive,
             )
-            collection_path = get_ext_file(collection_output_path)
-            self.cards_collection_parser = Parser().load(collection_path)
-            self._identifier_index = self._build_identifier_index(collection_path)
+            self.cards_db = FabCollectionDB(
+                os.path.join(collection_output_path, DB_FILENAME)
+            )
 
-    @staticmethod
-    def _build_identifier_index(collection_path: str) -> dict:
-        """
-        Map upper-cased set identifiers (e.g. 'SEA082') to ``(name, pitch)`` so
-        fabrary-style set-code lookups work against the name-keyed collection.
-        """
+    def close(self) -> None:
+        if self.cards_db is not None:
+            self.cards_db.close()
+            self.cards_db = None
 
-        with open(collection_path, encoding="utf-8") as f:
-            raw = json.load(f)
-        index: dict[str, tuple[str, str]] = {}
-        for name, pitches in raw.get("cards", {}).items():
-            for pitch, card in pitches.items():
-                identifier = (card or {}).get("identifier")
-                if identifier:
-                    index[str(identifier).upper()] = (name, pitch)
-        return index
+    def __del__(self) -> None:
+        try:
+            self.close()
+        except Exception:
+            pass
 
     @deprecated("Use get_card_by_collection() instead.")
     def _get_card_by_api(self, card_name: str) -> dict | None:
@@ -373,19 +364,15 @@ class FABProxifier(CardGameProxifier):
         FAB get card using collection data: https://github.com/the-fab-cube/flesh-and-blood-cards.
         """
 
-        try:
-            card_data = self.cards_collection_parser.at_pointer(
-                f"/cards/{card_name}/{card_pitch}"
-            )
-        except (KeyError, ValueError, TypeError):
+        assert self.cards_db is not None
+        card_data = self.cards_db.get_card(card_name, card_pitch)
+        if card_data is None:
             print(
                 f"[CARD-PROXY-PRINTER] Can not find {card_name}_{card_pitch} card, skipping..."
             )
             return
 
-        if (
-            card_image_bytes := self._url_to_bytes(card_data.at_pointer("/image_url"))
-        ) is None:
+        if (card_image_bytes := self._url_to_bytes(card_data.get("image_url"))) is None:
             print(
                 f"[CARD-PROXY-PRINTER] Can not find {card_name}_{card_pitch} card, skipping..."
             )
@@ -396,9 +383,9 @@ class FABProxifier(CardGameProxifier):
 
         tokens_bytes: list = []
         tokens_names: list = []
-        for token_type in ["tokens", "backside"]:
-            token_list = card_data.at_pointer(f"/{token_type}")
-            if token_list is None:
+        for token_type in ("tokens", "backside"):
+            token_list = card_data.get(token_type)
+            if not token_list:
                 continue
             for token_entry in token_list:
                 token_entry_str = str(token_entry)
@@ -407,13 +394,10 @@ class FABProxifier(CardGameProxifier):
                 else:
                     tk_name = token_entry_str
                     tk_pitch = PITCHES[""]
-                try:
-                    token_image_url = self.cards_collection_parser.at_pointer(
-                        f"/cards/{tk_name}/{tk_pitch}/image_url"
-                    )
-                except (KeyError, ValueError, TypeError):
+                token_row = self.cards_db.get_card(tk_name, tk_pitch)
+                if token_row is None:
                     continue
-                token_image_bytes = self._url_to_bytes(token_image_url)
+                token_image_bytes = self._url_to_bytes(token_row.get("image_url"))
                 if token_image_bytes is None:
                     continue
                 tokens_bytes.append(token_image_bytes)
@@ -425,11 +409,11 @@ class FABProxifier(CardGameProxifier):
         """
         FAB get card method. ``card_name`` may be either an encoded card name
         (paired with ``card_pitch``) or a set identifier such as ``SEA082``
-        (resolved through the identifier index built at load time).
+        (resolved through the identifier index).
         """
 
-        if card_name:
-            resolved = self._identifier_index.get(card_name.upper())
+        if card_name and self.cards_db is not None:
+            resolved = self.cards_db.resolve_identifier(card_name.upper())
             if resolved is not None:
                 card_name, card_pitch = resolved
 

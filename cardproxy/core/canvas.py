@@ -9,6 +9,10 @@ from natsort import natsorted
 
 from .models import MM_PER_INCH, CanvasModel, CardModel
 
+# JPEG at Q=100 is visually lossless at 600 DPI and lets ``save_pdf`` embed the
+# DCT stream verbatim via ``/DCTDecode`` instead of re-encoding a PNG stream.
+_JPEG_QUALITY = 100
+
 
 class Canvas:
     """
@@ -35,7 +39,7 @@ class Canvas:
         )
         self.num_page = None
         self.num_pages = None
-        self.image_ext = "png"
+        self.image_ext = "jpg"
         self.num_cards_per_page_width = cards_per_page_width
         self.num_cards_per_page_height = cards_per_page_height
         self._generate_layout_data()
@@ -226,10 +230,15 @@ class Canvas:
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir, exist_ok=True)
-        cv2.imwrite(
-            os.path.join(output_dir, f"{str(self.num_page).zfill(2)}.{self.image_ext}"),
-            self.page,
+        output_path = os.path.join(
+            output_dir, f"{str(self.num_page).zfill(2)}.{self.image_ext}"
         )
+        if self.image_ext in ("jpg", "jpeg"):
+            cv2.imwrite(
+                output_path, self.page, [cv2.IMWRITE_JPEG_QUALITY, _JPEG_QUALITY]
+            )
+        else:
+            cv2.imwrite(output_path, self.page)
 
     def fill_page(self, cards: tuple) -> None:
         """

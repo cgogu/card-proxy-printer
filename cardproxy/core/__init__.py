@@ -14,6 +14,7 @@ from .fab_collection import (
     is_fab_collection_outdated,
     refresh_fab_collection,
 )
+from .fab_db import DB_FILENAME, FabCollectionDB
 from .git_sync import sync_with_remote
 from .image_ops import (
     convert_16bit_to_8bit,
@@ -50,6 +51,8 @@ __all__ = (
     "create_fab_cards_collection",
     "is_fab_collection_outdated",
     "refresh_fab_collection",
+    "FabCollectionDB",
+    "DB_FILENAME",
     "sync_with_remote",
     "encode_name",
     "parse_decklist",

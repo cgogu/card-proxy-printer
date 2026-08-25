@@ -47,6 +47,7 @@ ACCENT = "#3b82f6"  # brand blue
 ACCENT_FG = "#ffffff"  # text on accent backgrounds
 ACCENT_HOVER = "#2563eb"
 ACCENT_ACTIVE = "#1d4ed8"
+ACCENT_FILL = "#06b6d4"  # cyan: page-build phase of the progress bar
 VIEWER_BG = "#0b1220"  # preview canvas background
 
 # --- Fonts ---
@@ -228,6 +229,15 @@ class CardProxyPrinterGUI:
             bordercolor=ELEV,
             lightcolor=ACCENT,
             darkcolor=ACCENT,
+            thickness=14,
+        )
+        style.configure(
+            "Fill.Horizontal.TProgressbar",
+            troughcolor=ELEV,
+            background=ACCENT_FILL,
+            bordercolor=ELEV,
+            lightcolor=ACCENT_FILL,
+            darkcolor=ACCENT_FILL,
             thickness=14,
         )
 
@@ -589,7 +599,6 @@ class CardProxyPrinterGUI:
         self.current_page = 0
         self.render_canvas = None
         self._update_page_label()
-        self.viewer.delete("all")
         self._photo = None
         self._current_img = None
         self._current_page_path = None
@@ -598,6 +607,9 @@ class CardProxyPrinterGUI:
         self.save_btn.configure(state="disabled")
         self.progress_var.set(0.0)
         self.progress_pct_var.set("")
+        self.progress.configure(style="Modern.Horizontal.TProgressbar")
+        # Keep the ASCII banner visible after Clear / between renders.
+        self._draw_placeholder()
 
     def _maybe_auto_render(self) -> None:
         # Skip silently if we don't yet have both a config and a decklist.
@@ -698,6 +710,9 @@ class CardProxyPrinterGUI:
             main_cards: list = []
             main_tokens: list = []
             processed_token_names: list[str] = []
+            # Progress budget: fetching cards is the dominant cost, page
+            # building follows on a smaller slice so the bar keeps moving.
+            fetch_weight = 90.0
             for idx, entry in enumerate(decklist, start=1):
                 self.event_queue.put(("status", f"Fetching {idx}/{total}..."))
                 payload = proxifier.generate_card(
@@ -706,7 +721,8 @@ class CardProxyPrinterGUI:
                     canvas_obj.on_canvas_card_width_pixels,
                     canvas_obj.on_canvas_card_height_pixels,
                 )
-                self.event_queue.put(("progress", (idx, total)))
+                fetch_pct = fetch_weight * idx / total if total else 0.0
+                self.event_queue.put(("progress", fetch_pct))
                 if payload is None:
                     continue
                 cards, tokens = payload
@@ -726,6 +742,9 @@ class CardProxyPrinterGUI:
             num_pages = ceil(len(all_items) / per_page) if all_items else 0
 
             page_dir = mkdtemp(prefix="cpp_gui_pages_")
+            if num_pages:
+                self.event_queue.put(("progress", fetch_weight))
+                self.event_queue.put(("status", f"Building 0/{num_pages} page(s)..."))
             for batch_index, batch_cards in enumerate(batched(all_items, per_page)):
                 canvas_obj.new_page(batch_index + 1, num_pages)
                 canvas_obj.fill_page(batch_cards)
@@ -735,6 +754,14 @@ class CardProxyPrinterGUI:
                     f"{str(batch_index + 1).zfill(2)}.{canvas_obj.image_ext}",
                 )
                 self.event_queue.put(("page", page_path))
+                pages_done = batch_index + 1
+                page_pct = (
+                    fetch_weight + (100.0 - fetch_weight) * pages_done / num_pages
+                )
+                self.event_queue.put(("progress", page_pct))
+                self.event_queue.put(
+                    ("status", f"Building {pages_done}/{num_pages} page(s)...")
+                )
 
             self.event_queue.put(("done", (canvas_obj, page_dir)))
         except Exception as e:
@@ -752,10 +779,16 @@ class CardProxyPrinterGUI:
                 if kind == "status":
                     self.status_var.set(payload)
                 elif kind == "progress":
-                    current, total = payload
-                    pct = 100.0 * current / total if total else 0.0
+                    pct = float(payload)
                     self.progress_var.set(pct)
                     self.progress_pct_var.set(f"{int(pct)}%")
+                    self.progress.configure(
+                        style=(
+                            "Fill.Horizontal.TProgressbar"
+                            if pct >= 90.0
+                            else "Modern.Horizontal.TProgressbar"
+                        )
+                    )
                 elif kind == "page":
                     self.page_paths.append(payload)
                     if len(self.page_paths) == 1:
@@ -770,11 +803,13 @@ class CardProxyPrinterGUI:
                     )
                     self.progress_var.set(100.0)
                     self.progress_pct_var.set("100%")
+                    self.progress.configure(style="Fill.Horizontal.TProgressbar")
                     self.status_var.set(f"Rendered {len(self.page_paths)} page(s).")
                 elif kind == "error":
                     self.render_btn.configure(state="normal")
                     self.progress_var.set(0.0)
                     self.progress_pct_var.set("")
+                    self.progress.configure(style="Modern.Horizontal.TProgressbar")
                     self.status_var.set("Render failed.")
                     messagebox.showerror("Render error", payload)
                 elif kind == "save_done":
@@ -857,9 +892,36 @@ class CardProxyPrinterGUI:
         self._set_zoom(1.0)
 
     def _set_zoom(self, factor: float) -> None:
-        self.zoom = max(self._zoom_min, min(self._zoom_max, factor))
+        new_zoom = max(self._zoom_min, min(self._zoom_max, factor))
+        if new_zoom == self.zoom:
+            return
+
+        # Capture the current viewport-center as fractions of the scrollregion
+        # so we can re-center on the same point after the scale changes.
+        try:
+            x1, x2 = self.viewer.xview()
+            y1, y2 = self.viewer.yview()
+        except tk.TclError:
+            x1 = y1 = 0.0
+            x2 = y2 = 1.0
+        cx_frac = (x1 + x2) / 2
+        cy_frac = (y1 + y2) / 2
+
+        self.zoom = new_zoom
         self.zoom_var.set(f"{round(self.zoom * 100)}%")
         self._refresh_viewer()
+
+        self.viewer.update_idletasks()
+        vw = max(1, self.viewer.winfo_width())
+        vh = max(1, self.viewer.winfo_height())
+        sr = str(self.viewer.cget("scrollregion")).split()
+        if len(sr) == 4:
+            sw = float(sr[2]) - float(sr[0])
+            sh = float(sr[3]) - float(sr[1])
+            if sw > vw:
+                self.viewer.xview_moveto(max(0.0, min(1.0, cx_frac - (vw / 2) / sw)))
+            if sh > vh:
+                self.viewer.yview_moveto(max(0.0, min(1.0, cy_frac - (vh / 2) / sh)))
 
     def _update_page_label(self) -> None:
         total = len(self.page_paths)
