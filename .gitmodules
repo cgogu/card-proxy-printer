@@ -1,3 +1,3 @@
-[submodule "helper_repos/collection/fab/flesh-and-blood-cards"]
-	path = helper_repos/collection/fab/flesh-and-blood-cards
+[submodule "cardproxy/helper_repos/collection/fab/flesh-and-blood-cards"]
+	path = cardproxy/helper_repos/collection/fab/flesh-and-blood-cards
 	url = https://github.com/the-fab-cube/flesh-and-blood-cards.git

@@ -1,0 +1,10 @@
+# Paths are relative to the cardproxy/ package directory.
+card_game_alias: fab
+path_to_database: database
+path_to_collection_input: helper_repos/collection
+path_to_sr_weights: helper_repos/sr/torchsr/torchsr/model_zoo/ninasr_b0_x4.pt
+path_to_denoise_weights: helper_repos/denoise/scunet/model_zoo/scunet_color_real_gan.pth
+cards_per_page_width: 1
+cards_per_page_height: 1
+paper_width_mm: 210.0
+paper_height_mm: 297.0

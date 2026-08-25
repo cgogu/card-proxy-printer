@@ -1,0 +1,43 @@
+Name: Dorinthea Silver Age Deck
+Hero: Dorinthea
+Format: Silver Age
+
+Arena cards
+1x Blossom of Spring
+1x Dawnblade
+1x Gauntlets of Unity
+1x Helm of Unity
+1x Nullrune Gloves
+1x Nullrune Hood
+1x Nullrune Robe
+1x Refraction Bolters
+
+Deck cards
+2x Agile Engagement (red)
+2x Ironsong Response (red)
+2x Lead with Speed (red)
+2x Oasis Respite (red)
+2x Out for Blood (red)
+2x Overpower (red)
+2x Puncture (red)
+2x Scar for a Scar (red)
+2x Sharpen Steel (red)
+2x Stroke of Foresight (red)
+2x Warrior's Valor (red)
+2x Wreck Havoc (red)
+1x Run Through (yellow)
+2x Springboard Somersault (yellow)
+2x Warrior's Valor (yellow)
+1x Energy Potion (blue)
+2x Goblet of Bloodrun Wine (blue)
+2x Hit and Run (blue)
+2x Ironsong Response (blue)
+2x Nip at the Heels (blue)
+2x Overpower (blue)
+1x Puncture (blue)
+2x Put in Context (blue)
+2x Trot Along (blue)
+2x Warrior's Valor (blue)
+
+Made with love at the FaBrary
+See the full deck @ https://fabrary.net/decks/01KFWFXK3QM2XEVA08D5Y1R3CF

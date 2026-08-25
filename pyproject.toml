@@ -1,0 +1,21 @@
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = [
+    "cardproxy/helper_repos",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# Line length is enforced by the ruff formatter.
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"cardproxy/__init__.py" = ["F401"]
+"cardproxy/core/__init__.py" = ["F401"]
+"cardproxy/core/utils.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

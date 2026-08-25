@@ -1,5 +1,0 @@
-card_game_alias: fab
-path_to_data: /home/cgogu/projects/card-proxy-printer/data
-path_to_collection_input: /home/cgogu/projects/card-proxy-printer/helper_repos/collection
-path_to_sr_weights: /home/cgogu/projects/card-proxy-printer/helper_repos/sr/torchsr/torchsr/model_zoo/ninasr_b0_x4.pt
-path_to_denoise_weights: /home/cgogu/projects/card-proxy-printer/helper_repos/denoise/scunet/model_zoo/scunet_color_real_gan.pth
